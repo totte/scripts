@@ -43,6 +43,8 @@ enter_credentials()
 	done
 	
 	read -p "Enter user name: " username
+	read -p "Enter full name: " realname
+	read -p "Enter e-mail address: " email
 
 	while [ 1 ]; do
 		read -p "Enter user password: " userpass1
@@ -54,6 +56,16 @@ enter_credentials()
 		fi
 	done
 	
+	while [ 1 ]; do
+		read -p "Enter ssh passphrase: " sshpass1
+		read -p "...once more: " sshpass2
+		if [ "$userpass1" == "$sshpass2" ]; then
+			break;
+		else
+			echo "The passphrases don't match, try again.";
+		fi
+	done
+
 	# Target device
 	DEV=/dev/sda
 	
@@ -250,7 +262,6 @@ create_user()
 }
 
 # Clone git repositories (temporary solution, read-only access)
-# TODO Fonts now in fonts.tar.gz, edit script to extract and move
 clone_repositories()
 {
 	echo "Cloning repositories and linking/copying files..."
@@ -258,8 +269,9 @@ clone_repositories()
 		chroot /mnt /bin/zsh <<- END
 			dhcpcd
 			su $username
-				git clone https://hwt@github.com/hwt/bin.git /home/$username/bin
-				git clone https://hwt@github.com/hwt/cfg.git /home/$username/cfg
+				git clone git@bitbucket.org:totte/bin.git /home/$username/bin
+				git clone git@bitbucket.org:totte/cfg.git /home/$username/cfg
+				git clone git@bitbucket.org:totte/ref.git /home/$username/ref
 				exit
 			killall dhcpcd
 			cp -v /home/$username/cfg/syslinux.cfg /boot/syslinux/
@@ -279,6 +291,14 @@ clone_repositories()
 				ln -sv /home/$username/cfg/.xmobarrc /home/$username/
 				ln -sv /home/$username/cfg/.xmonad /home/$username/
 				ln -sv /home/$username/cfg/.zshrc /home/$username/
+				git config --global user.name "$realname"
+				git config --global user.email "$email"
+				git config --global core.excludesfile ~/.globalgitignore
+				ssh-keygen -t rsa -C "$email" <<- SSHEND
+					$sshpass1
+					$sshpass2
+					SSHEND
+				ssh-add /home/$username/.ssh/id_rsa
 				xmonad --recompile
 				exit
 			ln -sv /home/$username/cfg/.dircolorsrc /root/
@@ -286,9 +306,9 @@ clone_repositories()
 			ln -sv /home/$username/cfg/.vim /root/
 			ln -sv /home/$username/cfg/.vimrc /root/
 			ln -sv /home/$username/cfg/.zshrc /root/
-			cp -v /home/$username/cfg/fonts/*.ttf /usr/share/fonts/TTF/
-			cp -v /home/$username/cfg/fonts/*.otf /usr/share/fonts/TTF/
-			cp -v /home/$username/cfg/fonts/*.pcf.gz /usr/share/fonts/local/
+			tar -xzvf /home/$username/cfg/fonts.tar.gz
+			mv -v /home/$username/cfg/fonts/*.pcf.gz /usr/share/fonts/local/
+			mv -v /home/$username/cfg/fonts/* /usr/share/fonts/TTF/
 			chsh -s /bin/zsh
 			echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 			exit
