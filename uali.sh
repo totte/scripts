@@ -5,11 +5,6 @@
 # Copyright 2012 Hans Tovetjärn, hans.tovetjarn@gmail.com
 # All rights reserved. See LICENSE for more information.
 
-# 1: iyasefjr cyifmae
-# 2: wget is.gd/ualish
-# 3: chmod +x ualish
-# 4: ./ualish
-
 # Delete log files if they exist
 delete_logs()
 {
