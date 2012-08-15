@@ -5,6 +5,8 @@
 # Copyright 2012 Hans Tovetjärn, hans.tovetjarn@gmail.com
 # All rights reserved. See LICENSE for more information.
 
+# Tip: iyasefjr cyifmae
+
 # Delete log files if they exist
 delete_logs()
 {
@@ -51,16 +53,6 @@ enter_credentials()
 		fi
 	done
 	
-	while [ 1 ]; do
-		read -p "Enter ssh passphrase: " sshpass1
-		read -p "...once more: " sshpass2
-		if [ "$sshpass1" == "$sshpass2" ]; then
-			break;
-		else
-			echo "The passphrases don't match, try again.";
-		fi
-	done
-
 	# Target device
 	DEV=/dev/sda
 	
@@ -256,7 +248,7 @@ create_user()
 	} >> uali.log 2>> uali.err
 }
 
-# Clone git repositories (temporary solution, read-only access)
+# Clone git repositories
 clone_repositories()
 {
 	echo "Cloning repositories and linking/copying files..."
@@ -264,9 +256,9 @@ clone_repositories()
 		chroot /mnt /bin/zsh <<- END
 			dhcpcd
 			su $username
-				git clone git@bitbucket.org:totte/bin.git /home/$username/bin
-				git clone git@bitbucket.org:totte/cfg.git /home/$username/cfg
-				git clone git@bitbucket.org:totte/ref.git /home/$username/ref
+				git clone https://totte@bitbucket.org/totte/bin.git /home/$username/bin
+				git clone https://totte@bitbucket.org/totte/cfg.git /home/$username/cfg
+				git clone https://totte@bitbucket.org/totte/ref.git /home/$username/ref
 				exit
 			killall dhcpcd
 			cp -v /home/$username/cfg/syslinux.cfg /boot/syslinux/
@@ -289,11 +281,6 @@ clone_repositories()
 				git config --global user.name "$realname"
 				git config --global user.email "$email"
 				git config --global core.excludesfile ~/.globalgitignore
-				ssh-keygen -t rsa -C "$email" <<- SSHEND
-					$sshpass1
-					$sshpass2
-					SSHEND
-				ssh-add /home/$username/.ssh/id_rsa
 				xmonad --recompile
 				exit
 			ln -sv /home/$username/cfg/.dircolorsrc /root/
