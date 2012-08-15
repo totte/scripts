@@ -54,7 +54,7 @@ enter_credentials()
 	while [ 1 ]; do
 		read -p "Enter ssh passphrase: " sshpass1
 		read -p "...once more: " sshpass2
-		if [ "$userpass1" == "$sshpass2" ]; then
+		if [ "$sshpass1" == "$sshpass2" ]; then
 			break;
 		else
 			echo "The passphrases don't match, try again.";
