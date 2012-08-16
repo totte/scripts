@@ -91,12 +91,12 @@ mount_partitions()
 	echo "Mounting partitions..."
 	{
 		mount "$DEV"2 /mnt
-		mkdir -pv /mnt/{boot,dev,home,proc,sys,var/{log,lib/pacman/sync,cache/pacman/pkg}}
+		mkdir -pv /mnt/{boot,dev,home,proc,sys,var/{cache/pacman/pkg,lib/pacman/sync,log}}
 		mount "$DEV"1 /mnt/boot
 		mount "$DEV"3 /mnt/home
 		mount --bind /dev /mnt/dev
-		mount --bind /sys /mnt/sys
 		mount --bind /proc /mnt/proc
+		mount --bind /sys /mnt/sys
 	} >> uali.log 2>> uali.err
 }
 
@@ -260,7 +260,7 @@ clone_repositories()
 				exit
 			killall dhcpcd
 			cp -v /home/$username/cfg/syslinux.cfg /boot/syslinux/
-			cp -v /home/$username/cfg/images/splash.png /boot/syslinux/
+			cp -v /home/$username/cfg/boot.png /boot/syslinux/
 			su $username
 				rm -frv /home/$username/.bash*
 				rm -frv /home/$username/.xinitrc
@@ -283,9 +283,12 @@ clone_repositories()
 			ln -sv /home/$username/cfg/.vim /root/
 			ln -sv /home/$username/cfg/.vimrc /root/
 			ln -sv /home/$username/cfg/.zshrc /root/
-			#cp -v /home/$username/cfg/fonts/*.ttf /usr/share/fonts/TTF/
-			#cp -v /home/$username/cfg/fonts/*.otf /usr/share/fonts/TTF/
-			#cp -v /home/$username/cfg/fonts/*.pcf.gz /usr/share/fonts/local/
+			tar -xzvf /home/$username/cfg/fonts.tar.gz
+			mv -v /fonts/*.ttf /usr/share/fonts/TTF/
+			mv -v /fonts/*.ttc /usr/share/fonts/TTF/
+			mv -v /fonts/*.otf /usr/share/fonts/TTF/
+			cp -v /fonts/*.pcf.gz /usr/share/fonts/local/
+			rm -r /fonts
 			chsh -s /bin/zsh
 			echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 			exit
@@ -321,7 +324,7 @@ create_initial_ramdisk
 configure_bootloader
 set_root_password
 create_user
-#clone_repositories
+clone_repositories
 unmount_partitions
 
 # Done!
