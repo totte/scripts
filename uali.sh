@@ -40,8 +40,6 @@ enter_credentials()
 	done
 	
 	read -p "Enter user name: " username
-	read -p "Enter full name: " realname
-	read -p "Enter e-mail address: " email
 
 	while [ 1 ]; do
 		read -p "Enter user password: " userpass1
@@ -248,7 +246,9 @@ create_user()
 	} >> uali.log 2>> uali.err
 }
 
-# Clone git repositories
+# Clone the cfg git repository (temporary solution, read-only access, just to get X running)
+# TODO Change to Bitbucket or forget about this if that requires authentication)
+# TODO Fonts now in fonts.tar.gz, edit script to extract and move
 clone_repositories()
 {
 	echo "Cloning repositories and linking/copying files..."
@@ -256,9 +256,7 @@ clone_repositories()
 		chroot /mnt /bin/zsh <<- END
 			dhcpcd
 			su $username
-				git clone https://totte@bitbucket.org/totte/bin.git /home/$username/bin
 				git clone https://totte@bitbucket.org/totte/cfg.git /home/$username/cfg
-				git clone https://totte@bitbucket.org/totte/ref.git /home/$username/ref
 				exit
 			killall dhcpcd
 			cp -v /home/$username/cfg/syslinux.cfg /boot/syslinux/
@@ -278,9 +276,6 @@ clone_repositories()
 				ln -sv /home/$username/cfg/.xmobarrc /home/$username/
 				ln -sv /home/$username/cfg/.xmonad /home/$username/
 				ln -sv /home/$username/cfg/.zshrc /home/$username/
-				git config --global user.name "$realname"
-				git config --global user.email "$email"
-				git config --global core.excludesfile ~/.globalgitignore
 				xmonad --recompile
 				exit
 			ln -sv /home/$username/cfg/.dircolorsrc /root/
@@ -288,9 +283,9 @@ clone_repositories()
 			ln -sv /home/$username/cfg/.vim /root/
 			ln -sv /home/$username/cfg/.vimrc /root/
 			ln -sv /home/$username/cfg/.zshrc /root/
-			tar -xzvf /home/$username/cfg/fonts.tar.gz
-			mv -v /home/$username/cfg/fonts/*.pcf.gz /usr/share/fonts/local/
-			mv -v /home/$username/cfg/fonts/* /usr/share/fonts/TTF/
+			#cp -v /home/$username/cfg/fonts/*.ttf /usr/share/fonts/TTF/
+			#cp -v /home/$username/cfg/fonts/*.otf /usr/share/fonts/TTF/
+			#cp -v /home/$username/cfg/fonts/*.pcf.gz /usr/share/fonts/local/
 			chsh -s /bin/zsh
 			echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 			exit
@@ -326,7 +321,7 @@ create_initial_ramdisk
 configure_bootloader
 set_root_password
 create_user
-clone_repositories
+#clone_repositories
 unmount_partitions
 
 # Done!
