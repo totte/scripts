@@ -5,6 +5,7 @@
 # Copyright 2012 Hans Tovetjärn, hans.tovetjarn@gmail.com
 # All rights reserved. See LICENSE for more information.
 
+# TODO: Make my own installation media just like the original but with this script on it
 # Tip: iyasefjr cyifmae
 
 # Delete log files if they exist
@@ -111,6 +112,7 @@ generate_mirror_list()
 }
 
 # Install packages
+# TODO: Add drivers for graphic cards, the old Scaleo needs xf86-video-ati ('lspci | grep VGA' helps)
 install_packages()
 {
 	echo "Downloading and installing packages..."
@@ -138,6 +140,7 @@ copy_pacman_km()
 }
 
 # Generate an fstab
+# TODO: Got an error about /boot not being ext2 when I changed to ext4, also this would seem to duplicate stuff alredy in /etc/fstab
 generate_fstab()
 {
 	echo "Generating an fstab..."
@@ -177,6 +180,7 @@ set_keymap()
 }
 
 # Set locale
+# TODO: This step is partially redundant because the en_US.UTF-8 locale is uncommented by default
 set_locale()
 {
 	echo "Setting locale..."
@@ -213,6 +217,7 @@ create_initial_ramdisk()
 }
 
 # Configure bootloader
+# TODO: OMFG don't do this on the SCALEO!
 configure_bootloader()
 {
 	echo "Configuring bootloader..."
@@ -247,8 +252,6 @@ create_user()
 }
 
 # Clone the cfg git repository (temporary solution, read-only access, just to get X running)
-# TODO Change to Bitbucket or forget about this if that requires authentication)
-# TODO Fonts now in fonts.tar.gz, edit script to extract and move
 clone_repositories()
 {
 	echo "Cloning repositories and linking/copying files..."
@@ -284,11 +287,12 @@ clone_repositories()
 			ln -sv /home/$username/cfg/.vimrc /root/
 			ln -sv /home/$username/cfg/.zshrc /root/
 			tar -xzvf /home/$username/cfg/fonts.tar.gz
-			mv -v /fonts/*.ttf /usr/share/fonts/TTF/
-			mv -v /fonts/*.ttc /usr/share/fonts/TTF/
-			mv -v /fonts/*.otf /usr/share/fonts/TTF/
-			cp -v /fonts/*.pcf.gz /usr/share/fonts/local/
-			rm -r /fonts
+			mkdir -pv /usr/share/fonts/{TTF,local}
+			mv -v fonts/*.ttf /usr/share/fonts/TTF/
+			mv -v fonts/*.ttc /usr/share/fonts/TTF/
+			mv -v fonts/*.otf /usr/share/fonts/TTF/
+			cp -v fonts/*.pcf.gz /usr/share/fonts/local/
+			rm -frv fonts
 			chsh -s /bin/zsh
 			echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 			exit
