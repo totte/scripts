@@ -193,6 +193,7 @@ set_locale()
 }
 
 # Enable daemons
+# TODO: dhcpcd@eth1.service for the SCALEO
 enable_daemons()
 {
 	echo "Enabling daemons..."
