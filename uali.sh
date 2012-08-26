@@ -180,14 +180,14 @@ set_keymap()
 }
 
 # Set locale
-# TODO: This step is partially redundant because the en_US.UTF-8 locale is uncommented by default
+# TODO: Partially redundant because the en_US.UTF-8 locale in locale.gen is uncommented by default
 set_locale()
 {
 	echo "Setting locale..."
 	{
 		echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
 		echo "LC_COLLATE=C" >> /mnt/etc/locale.conf
-		echo "en_US.UTF-8 UTF-8" >> /mnt/etc/locale.gen
+		#echo "en_US.UTF-8 UTF-8" >> /mnt/etc/locale.gen
 		chroot /mnt /usr/sbin/locale-gen
 	} >> uali.log 2>> uali.err
 }
