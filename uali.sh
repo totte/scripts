@@ -171,11 +171,9 @@ set_timezone()
 # Set keyboard layout
 set_keymap()
 {
-	echo "Setting keyboard layout and console font..."
+	echo "Setting keyboard layout..."
 	{
 		echo "KEYMAP=colemak" > /mnt/etc/vconsole.conf
-		echo "FONT=ter-116b" >> /mnt/etc/vconsole.conf
-		echo "FONT_MAP=8859-1_to_uni" >> /mnt/etc/vconsole.conf
 	} >> uali.log 2>> uali.err
 }
 
@@ -206,7 +204,7 @@ create_initial_ramdisk()
 {
 	echo "Creating initial ramdisk..."
 	{
-		sed -e 's/\(^MODULES.*\)"$/\1fuse\"/' -e 's/\(^HOOKS.*\)"$/\1 consolefont keymap\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
+		sed -e 's/\(^MODULES.*\)"$/\1fuse\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
 		mv /mnt/etc/mkinitcpio.conf.new /mnt/etc/mkinitcpio.conf
 		if [ $VM -eq 1 ]; then
 			sed -e 's/\(^MODULES.*\)"$/\1 vboxguest vboxsf vboxvideo\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
@@ -291,7 +289,6 @@ clone_repositories()
 			mv -v fonts/*.ttf /usr/share/fonts/TTF/
 			mv -v fonts/*.ttc /usr/share/fonts/TTF/
 			mv -v fonts/*.otf /usr/share/fonts/TTF/
-			cp -v fonts/*.pcf.gz /usr/share/fonts/local/
 			rm -frv fonts
 			chsh -s /bin/zsh
 			echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
