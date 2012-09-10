@@ -41,6 +41,10 @@ enter_credentials()
 	done
 	
 	read -p "Enter user name: " username
+	
+        read -p "Enter full name: " fullname
+	
+        read -p "Enter e-mail address: " email
 
 	while [ 1 ]; do
 		read -p "Enter user password: " userpass1
@@ -278,8 +282,9 @@ clone_repositories()
 				ln -sv /home/$username/cfg/.xmobarrc /home/$username/
 				ln -sv /home/$username/cfg/.xmonad /home/$username/
 				ln -sv /home/$username/cfg/.zshrc /home/$username/
-                                git config --global user.name "Hans Tovetjärn"
-                                git config --global user.email "totte@tott.es"
+                                git config --global user.name $fullname
+                                git config --global user.email $email
+                                git config --global core.excludesfile ~/.globalgitignore
 				xmonad --recompile
 				exit
 			ln -sv /home/$username/cfg/.dircolorsrc /root/
