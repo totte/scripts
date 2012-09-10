@@ -190,6 +190,7 @@ set_locale()
 }
 
 # Enable daemons
+# TODO: dhcpcd@eth0.service?
 # TODO: dhcpcd@eth1.service for the SCALEO
 enable_daemons()
 {
@@ -277,6 +278,8 @@ clone_repositories()
 				ln -sv /home/$username/cfg/.xmobarrc /home/$username/
 				ln -sv /home/$username/cfg/.xmonad /home/$username/
 				ln -sv /home/$username/cfg/.zshrc /home/$username/
+                                git config --global user.name "Hans Tovetjärn"
+                                git config --global user.email "totte@tott.es"
 				xmonad --recompile
 				exit
 			ln -sv /home/$username/cfg/.dircolorsrc /root/
