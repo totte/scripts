@@ -10,6 +10,14 @@
 
 # Tip: iyasefjr cyifmae
 
+hostname="computer"
+rootpass="password"
+username="name"
+userpass="password"
+useremail="name@example.com"
+device="/dev/sda"
+virtualmachine=1
+
 # Delete log files if they exist
 delete_logs()
 {
@@ -24,45 +32,29 @@ delete_logs()
     fi
 }
 
-# Input hostname, root password, username and user password
-enter_credentials()
-{
-    hostname="computer"
-    rootpass="password"
-    username="name"
-    userpass="password"
-    useremail="name@example.com"
-
-    # Target device
-    DEV=/dev/sda
-
-    # Set to 1 if installing on a virtual machine
-    VM=1
-}
-
 # Create partitions
 # Example below: 128 MB for /boot, 8192 MB for / and the rest for /home
 create_partitions()
 {
-    echo "Creating partitions on $DEV..."
+    echo "Creating partitions on $device..."
     {
-        parted -s -- "$DEV" mklabel gpt
-        parted -s -- "$DEV" unit MB mkpart primary 1 129
-        parted -s -- "$DEV" set 1 boot on
-        parted -s -- "$DEV" set 1 legacy_boot on
-        parted -s -- "$DEV" unit MB mkpart primary 129 8321
-        parted -s -- "$DEV" unit MB mkpart primary 8321 -1
+        parted -s -- "$device" mklabel gpt
+        parted -s -- "$device" unit MB mkpart primary 1 129
+        parted -s -- "$device" set 1 boot on
+        parted -s -- "$device" set 1 legacy_boot on
+        parted -s -- "$device" unit MB mkpart primary 129 8321
+        parted -s -- "$device" unit MB mkpart primary 8321 -1
     } >> uali.log 2>> uali.err
 }
 
 # Format partitions and assign labels
 format_partitions()
 {
-    echo "Creating file systems on $DEV..."
+    echo "Creating file systems on $device..."
     {
-        mkfs.ext4 "$DEV"1 -L boot
-        mkfs.ext4 "$DEV"2 -L root
-        mkfs.ext4 "$DEV"3 -L home
+        mkfs.ext4 "$device"1 -L boot
+        mkfs.ext4 "$device"2 -L root
+        mkfs.ext4 "$device"3 -L home
     } >> uali.log 2>> uali.err
 }
 
@@ -71,10 +63,10 @@ mount_partitions()
 {
     echo "Mounting partitions..."
     {
-        mount "$DEV"2 /mnt
+        mount "$device"2 /mnt
         mkdir -pv /mnt/{boot,dev,home,proc,sys,var/{cache/pacman/pkg,lib/pacman/sync,log}}
-        mount "$DEV"1 /mnt/boot
-        mount "$DEV"3 /mnt/home
+        mount "$device"1 /mnt/boot
+        mount "$device"3 /mnt/home
         mount --bind /dev /mnt/dev
         mount --bind /proc /mnt/proc
         mount --bind /sys /mnt/sys
@@ -98,13 +90,13 @@ install_packages()
     echo "Downloading and installing packages..."
     {
         # Keep trying until success
-        RC=1
-        until [ $RC -eq 0 ]; do
+        rc=1
+        until [ $rc -eq 0 ]; do
             pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git hsetroot lsb-release mesa openssh pyqt python python-pip qt rxvt-unicode slock sshfs sudo syslinux systemd systemd-arch-units tmux vim xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh
-            if [ $VM -eq 1 ]; then
+            if [ $virtualmachine -eq 1 ]; then
                 pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy xf86-video-vesa xf86-video-fbdev virtualbox-archlinux-additions
             fi
-            RC=$?
+            rc=$?
         done
     } >> uali.log 2>> uali.err
 }
@@ -187,7 +179,7 @@ create_initial_ramdisk()
     {
         sed -e 's/\(^MODULES.*\)"$/\1fuse\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
         mv /mnt/etc/mkinitcpio.conf.new /mnt/etc/mkinitcpio.conf
-        if [ $VM -eq 1 ]; then
+        if [ $virtualmachine -eq 1 ]; then
             sed -e 's/\(^MODULES.*\)"$/\1 vboxguest vboxsf vboxvideo\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
             mv /mnt/etc/mkinitcpio.conf.new /mnt/etc/mkinitcpio.conf
         fi
@@ -276,7 +268,7 @@ clone_repositories()
             chsh -s /bin/zsh
             echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
             exit
-            END
+        END
         } >> uali.log 2>> uali.err
 }
 
@@ -291,7 +283,6 @@ unmount_partitions()
 
 # Run!
 delete_logs
-enter_credentials
 create_partitions
 format_partitions
 mount_partitions
