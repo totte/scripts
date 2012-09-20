@@ -7,7 +7,7 @@
 # and that a network connection to the "origin" repository is established.
 # It also requires that you have a GPG private key to sign tags.
 
-# Copyright 2012 Hans Tovetjärn, totte@tott.es
+# Copyright 2012 Hans "Totte" Tovetjärn, totte@tott.es
 # All rights reserved. See LICENSE for more information.
 
 set -o errexit
@@ -16,9 +16,9 @@ usage()
 {
     echo
     echo "Usage:"
-    echo "  gittask.sh new feature name_of_feature"
+    echo "  gittask.sh new topic name_of_topic"
     echo "    - Creates a new branch off from 'development' named"
-    echo "      'feature/name_of_feature'."
+    echo "      'topic/name_of_topic'."
     echo "  gittask.sh new release name_of_release"
     echo "    - Creates a new branch off from 'development' named"
     echo "      'release/name_of_release'."
@@ -27,7 +27,7 @@ usage()
     echo "      'hotfix/name_of_hotfix'."
     echo "  gittask.sh done"
     echo "    - Merges current branch into master and/or development"
-    echo "      depending on if it's a feature, release or hotfix."
+    echo "      depending on if it's a topic, release or hotfix."
 }
 
 delete_branch()
@@ -72,9 +72,9 @@ if [ "$1" == "new" ] && [ -n "$2" ] && [ -n "$3" ]; then
     # Validate $3, only allow a-z (lower case), 0-9, . and _ (underscore) in branch names.
     [ "${3//[0-9a-z._]/}" = "" ] || { echo "Error: Branch names may only consist of a-z, 0-9 and _ (underscore) characters."; exit 1; }
     case $2 in
-        feature )
+        topic )
             git checkout development
-            git checkout -b "feature/$3"
+            git checkout -b "topic/$3"
             exit 0
             ;;
         release )
@@ -88,7 +88,7 @@ if [ "$1" == "new" ] && [ -n "$2" ] && [ -n "$3" ]; then
             exit 0
             ;;
         * )
-            echo "Error: You didn't specify feature, release or hotfix."
+            echo "Error: You didn't specify topic, release or hotfix."
             exit 1
             ;;
     esac
@@ -97,8 +97,7 @@ if [ "$1" == "new" ] && [ -n "$2" ] && [ -n "$3" ]; then
 elif [ "$1" == "done" ]; then
     current=`git branch | awk '/\*/{print $2}'`
     case ${current} in
-        feature* )
-            echo "Merging into development branch..."
+        topic* )
             git checkout development
             git merge ${current}
             git push origin development
@@ -106,7 +105,6 @@ elif [ "$1" == "done" ]; then
             exit 0
             ;;
         release* )
-            echo "Merging into development branch..."
             git checkout development
             git merge ${current}
             git push origin development
@@ -117,7 +115,6 @@ elif [ "$1" == "done" ]; then
                 read yn
                 case $yn in
                     [Yy]* )
-                        echo "Merging into master branch..."
                         git checkout master
                         git merge ${current}
                         define_tag
@@ -127,7 +124,7 @@ elif [ "$1" == "done" ]; then
                         break
                         ;;
                     [Nn]* )
-                        echo "Leaving branch master as it is."
+                        echo "Leaving master branch as it is."
                         break
                         ;;
                     * )
@@ -150,7 +147,7 @@ elif [ "$1" == "done" ]; then
             exit 0
             ;;
         * )
-            echo "Error: You're not on a feature, release or hotfix branch."
+            echo "Error: You're not on a topic, release or hotfix branch."
             exit 1
             ;;
     esac
