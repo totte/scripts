@@ -1,22 +1,14 @@
-#!/bin/sh -f
+#!/bin/sh
 
-# Unattended Arch Linux Installer (UALI)
+# Arch Linux Installer
 # This will automatically install and configure Arch Linux from the
-# 2012-08-04 installation media in a specific way for a specific
+# 2012-09-07 installation media in a specific way for a specific
 # machine of mine. It takes about an hour to complete on a 1 Mbit/s
 # connection.
-# Copyright 2012 Hans Tovetjärn, hans.tovetjarn@gmail.com
+# Copyright 2012 Hans "Totte" Tovetjärn, totte@tott.es
 # All rights reserved. See LICENSE for more information.
 
 # Tip: iyasefjr cyifmae
-
-hostname="computer"
-rootpass="password"
-username="name"
-userpass="password"
-useremail="name@example.com"
-device="/dev/sda"
-virtualmachine=1
 
 # Delete log files if they exist
 delete_logs()
@@ -30,6 +22,35 @@ delete_logs()
         echo "Error log file already exists, deleting it..."
         rm -v uali.err
     fi
+}
+
+# Read input
+input()
+{
+    read -p "Enter hostname: " hostname
+    read -p "Enter username: " username
+    read -p "Enter user e-mail: " useremail
+    read -p "Enter device (e.g. /dev/sda): " device
+    read -p "Enter keyboard layout (e.g. colemak or sv-latin1): " keyboardlayout
+    
+    # Infinite loop, only way out (except for Ctrl+C) is to answer yes or no.
+    while true; do
+        echo "Installing onto a virtual machine? (y/n) "
+        read yn
+        case $yn in
+            [Yy]* ) 
+                virtualmachine=1
+                break
+                ;;
+            [Nn]* )
+                virtualmachine=0
+                break
+                ;;
+            * )
+                echo "Error: Answer (y)es or (n)o."
+                ;;
+        esac
+    done
 }
 
 # Create partitions
@@ -140,12 +161,12 @@ set_timezone()
     } >> uali.log 2>> uali.err
 }
 
-# Set keyboard layout
+# Set keyboard layout for console (not X.org)
 set_keymap()
 {
     echo "Setting keyboard layout..."
     {
-        echo "KEYMAP=colemak" > /mnt/etc/vconsole.conf
+        echo "KEYMAP="$keyboardlayout > /mnt/etc/vconsole.conf
     } >> uali.log 2>> uali.err
 }
 
@@ -162,13 +183,12 @@ set_locale()
 }
 
 # Enable daemons
-# TODO: dhcpcd@eth0.service?
 # TODO: dhcpcd@eth1.service for the SCALEO
 enable_daemons()
 {
     echo "Enabling daemons..."
     {
-        chroot /mnt systemctl enable dhcpcd@.service
+        chroot /mnt systemctl enable dhcpcd@eth0.service
     } >> uali.log 2>> uali.err
 }
 
@@ -201,24 +221,18 @@ set_root_password()
 {
     echo "Setting root password..."
     {
-        chroot /mnt passwd <<- END
-        $rootpass
-        $rootpass
-        END
-    } >> uali.log 2>> uali.err
+        chroot /mnt passwd
+    } >> uali.log
 }
 
 # Create user
 create_user()
 {
-    echo "Creating user $username..."
+    echo "Creating user $username and setting password..."
     {
         chroot /mnt useradd -m -g users -G audio,games,log,lp,optical,power,scanner,storage,video,wheel -s /bin/zsh $username
-        chroot /mnt passwd $username <<- END
-        $userpass
-        $userpass
-        END
-    } >> uali.log 2>> uali.err
+        chroot /mnt passwd $username
+    } >> uali.log
 }
 
 # Clone the cfg git repository (temporary solution, read-only access, just to get X running)
@@ -268,7 +282,7 @@ clone_repositories()
             chsh -s /bin/zsh
             echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
             exit
-        END
+END
         } >> uali.log 2>> uali.err
 }
 
@@ -303,4 +317,4 @@ clone_repositories
 unmount_partitions
 
 # Done!
-echo "Installation completed, reboot to continue."
+echo "Installation completed, reboot to continue. TODO Install the appropriate graphics driver... X.org keyboard layout is set in .xinitrc."
