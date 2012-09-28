@@ -54,7 +54,8 @@ input()
 }
 
 # Create partitions
-# Example below: 128 MB for /boot, 8192 MB for / and the rest for /home
+# Example below: 128 MB for /boot, 16 384 MB for / and the rest for /home
+# TODO: Is legacy_boot necessary?
 create_partitions()
 {
     echo "Creating partitions on $device..."
@@ -63,8 +64,8 @@ create_partitions()
         parted -s -- "$device" unit MB mkpart primary 1 129
         parted -s -- "$device" set 1 boot on
         parted -s -- "$device" set 1 legacy_boot on
-        parted -s -- "$device" unit MB mkpart primary 129 8321
-        parted -s -- "$device" unit MB mkpart primary 8321 -1
+        parted -s -- "$device" unit MB mkpart primary 129 16513
+        parted -s -- "$device" unit MB mkpart primary 16513 -1
     } >> uali.log 2>> uali.err
 }
 
@@ -105,19 +106,20 @@ generate_mirror_list()
 }
 
 # Install packages
-# TODO: Add drivers for graphic cards, the old Scaleo needs xf86-video-ati ('lspci | grep VGA' helps)
+# TODO: Add variable for graphic card drivers
+# Dell Precision M4400: NVIDIA, xf86-video-nouveau ('lspci | grep VGA')
 install_packages()
 {
     echo "Downloading and installing packages..."
     {
         # Keep trying until success
-        rc=1
-        until [ $rc -eq 0 ]; do
-            pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git hsetroot lsb-release mesa openssh pyqt python python-pip qt rxvt-unicode slock sshfs sudo syslinux systemd systemd-arch-units tmux vim xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh
+        result=1
+        until [ $result -eq 0 ]; do
+            pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git hsetroot lsb-release mesa openssh pyqt python python-pip qt rxvt-unicode slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux vim xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
             if [ $virtualmachine -eq 1 ]; then
                 pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy xf86-video-vesa xf86-video-fbdev virtualbox-archlinux-additions
             fi
-            rc=$?
+            result=$?
         done
     } >> uali.log 2>> uali.err
 }
@@ -133,7 +135,6 @@ copy_pacman_km()
 }
 
 # Generate an fstab
-# TODO: Got an error about /boot not being ext2 when I changed to ext4, also this would seem to duplicate stuff alredy in /etc/fstab
 generate_fstab()
 {
     echo "Generating an fstab..."
@@ -143,6 +144,7 @@ generate_fstab()
 }
 
 # Set hostname
+# TODO :%s/localhost/myhostname/g in /etc/hosts
 set_hostname()
 {
     echo "Setting hostname..."
@@ -158,6 +160,7 @@ set_timezone()
     {
         ln -sv /mnt/usr/share/zoneinfo/Europe/Stockholm /mnt/etc/localtime
         echo "Europe/Stockholm" > /mnt/etc/timezone
+        chroot /mnt /sbin/hwclock --systohc --utc
     } >> uali.log 2>> uali.err
 }
 
@@ -166,7 +169,8 @@ set_keymap()
 {
     echo "Setting keyboard layout..."
     {
-        echo "KEYMAP="$keyboardlayout > /mnt/etc/vconsole.conf
+        echo "KEYMAP=\"$keyboardlayout\"" > /mnt/etc/vconsole.conf
+        echo "FONT=\"Lat2-Terminus16\"" >> /mnt/etc/vconsole.conf
     } >> uali.log 2>> uali.err
 }
 
@@ -183,7 +187,6 @@ set_locale()
 }
 
 # Enable daemons
-# TODO: dhcpcd@eth1.service for the SCALEO
 enable_daemons()
 {
     echo "Enabling daemons..."
@@ -243,12 +246,7 @@ clone_repositories()
         chroot /mnt /bin/zsh <<- END
             dhcpcd
             su $username
-            git clone https://totte@bitbucket.org/totte/cfg.git /home/$username/cfg
-            exit
-            killall dhcpcd
-            cp -v /home/$username/cfg/syslinux.cfg /boot/syslinux/
-            cp -v /home/$username/cfg/boot.png /boot/syslinux/
-            su $username
+                git clone https://totte@bitbucket.org/totte/cfg.git /home/$username/cfg
                 rm -frv /home/$username/.bash*
                 rm -frv /home/$username/.xinitrc
                 ln -sv /home/$username/cfg/.dircolorsrc /home/$username/
@@ -268,13 +266,16 @@ clone_repositories()
                 git config --global core.excludesfile ~/.globalgitignore
                 xmonad --recompile
                 exit
+            killall dhcpcd
+            cp -v /home/$username/cfg/syslinux.cfg /boot/syslinux/
+            cp -v /home/$username/cfg/boot.png /boot/syslinux/
             ln -sv /home/$username/cfg/.dircolorsrc /root/
             ln -sv /home/$username/cfg/.gvimrc /root/
             ln -sv /home/$username/cfg/.vim /root/
             ln -sv /home/$username/cfg/.vimrc /root/
             ln -sv /home/$username/cfg/.zshrc /root/
             tar -xzvf /home/$username/cfg/fonts.tar.gz
-            mkdir -pv /usr/share/fonts/{TTF,local}
+            mkdir -pv /usr/share/fonts/TTF
             mv -v fonts/*.ttf /usr/share/fonts/TTF/
             mv -v fonts/*.ttc /usr/share/fonts/TTF/
             mv -v fonts/*.otf /usr/share/fonts/TTF/
@@ -297,6 +298,7 @@ unmount_partitions()
 
 # Run!
 delete_logs
+input
 create_partitions
 format_partitions
 mount_partitions
@@ -317,4 +319,4 @@ clone_repositories
 unmount_partitions
 
 # Done!
-echo "Installation completed, reboot to continue. TODO Install the appropriate graphics driver... X.org keyboard layout is set in .xinitrc."
+echo "Installation completed, reboot to continue."
