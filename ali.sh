@@ -64,8 +64,8 @@ create_partitions()
         parted -s -- "$device" unit MB mkpart primary 1 129
         parted -s -- "$device" set 1 boot on
         parted -s -- "$device" set 1 legacy_boot on
-        parted -s -- "$device" unit MB mkpart primary 129 16513
-        parted -s -- "$device" unit MB mkpart primary 16513 -1
+        parted -s -- "$device" unit MB mkpart primary 129 8321
+        parted -s -- "$device" unit MB mkpart primary 8321 -1
     } >> uali.log 2>> uali.err
 }
 
