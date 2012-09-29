@@ -267,8 +267,14 @@ clone_repositories()
                 git config --global user.name $username
                 git config --global user.email $useremail
                 git config --global core.excludesfile ~/.globalgitignore
+                mkdir /home/$username/src
+                wget -P /home/$username/src/ https://aur.archlinux.org/packages/dm/dmenu-xft-height/dmenu-xft-height.tar.gz
+                tar -zxvf /home/$username/src/dmenu-xft-height.tar.gz
+                cd /home/$username/src/dmenu-xft-height
+                makepkg -s
                 xmonad --recompile
                 exit
+            pacman --noconfirm -U /home/$username/src/dmenu-xft-height/dmenu-xft-height-4.5-1-x86_64.pkg.tar.xz
             killall dhcpcd
             cp -v /home/$username/cfg/syslinux.cfg /boot/syslinux/
             cp -v /home/$username/cfg/boot.png /boot/syslinux/
