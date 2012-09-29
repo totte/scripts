@@ -115,7 +115,7 @@ install_packages()
         # Keep trying until success
         result=1
         until [ $result -eq 0 ]; do
-            pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git hsetroot lsb-release mesa openssh pyqt python python-pip qt rxvt-unicode slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux vim xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
+            pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git hsetroot lsb-release mesa mpd ncmpc openssh opera pyqt python python-pip qt rxvt-unicode slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux vim wget xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
             if [ $virtualmachine -eq 1 ]; then
                 pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy xf86-video-vesa xf86-video-fbdev virtualbox-archlinux-additions
             fi
@@ -252,6 +252,7 @@ clone_repositories()
                 ln -sv /home/$username/cfg/.dircolorsrc /home/$username/
                 ln -sv /home/$username/cfg/.globalgitignore /home/$username/
                 ln -sv /home/$username/cfg/.gvimrc /home/$username/
+                ln -sv /home/$username/cfg/.mpdconf /home/$username/
                 ln -sv /home/$username/cfg/.tmux.conf /home/$username/
                 ln -sv /home/$username/cfg/.toprc /home/$username/
                 ln -sv /home/$username/cfg/.vim /home/$username/
@@ -261,6 +262,8 @@ clone_repositories()
                 ln -sv /home/$username/cfg/.xmobarrc /home/$username/
                 ln -sv /home/$username/cfg/.xmonad /home/$username/
                 ln -sv /home/$username/cfg/.zshrc /home/$username/
+                mkdir /home/$username/.mpd/playlists
+                touch /home/$username/.mpd/{database,log,pid,state,sticker.sql}
                 git config --global user.name $username
                 git config --global user.email $useremail
                 git config --global core.excludesfile ~/.globalgitignore
