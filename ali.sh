@@ -115,7 +115,7 @@ install_packages()
         # Keep trying until success
         result=1
         until [ $result -eq 0 ]; do
-            pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git hsetroot lsb-release mesa mpd ncmpc openssh opera pyqt python python-pip qt rxvt-unicode slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux vim wget xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
+            pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git gstreamer0.10 gstreamer0.10-plugins hsetroot kdemultimedia-juk lsb-release mesa openssh opera pyqt python python-pip qt qtfm rxvt-unicode slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-bitstream-vera ttf-dejavu ttf-droid ttf-inconsolata ttf-liberation vim wget xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
             if [ $virtualmachine -eq 1 ]; then
                 pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy xf86-video-vesa xf86-video-fbdev virtualbox-archlinux-additions
             fi
