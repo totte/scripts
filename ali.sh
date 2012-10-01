@@ -115,7 +115,7 @@ install_packages()
         # Keep trying until success
         result=1
         until [ $result -eq 0 ]; do
-            pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git gstreamer0.10 gstreamer0.10-plugins hsetroot kdemultimedia-juk lsb-release mesa openssh opera pyqt python python-pip qt qtfm rxvt-unicode slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-bitstream-vera ttf-dejavu ttf-droid ttf-inconsolata ttf-liberation vim wget xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
+            pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git gstreamer0.10 gstreamer0.10-plugins hsetroot kdemultimedia-juk lsb-release mesa openssh opera pyqt python python-pip qt qtfm rxvt-unicode slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-droid ttf-inconsolata vim wget xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
             if [ $virtualmachine -eq 1 ]; then
                 pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy xf86-video-vesa xf86-video-fbdev virtualbox-archlinux-additions
             fi
@@ -200,7 +200,7 @@ create_initial_ramdisk()
 {
     echo "Creating initial ramdisk..."
     {
-        sed -e 's/\(^MODULES.*\)"$/\1fuse\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
+        sed -e 's/\(^MODULES.*\)"$/\1nouveau fuse\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
         mv /mnt/etc/mkinitcpio.conf.new /mnt/etc/mkinitcpio.conf
         if [ $virtualmachine -eq 1 ]; then
             sed -e 's/\(^MODULES.*\)"$/\1 vboxguest vboxsf vboxvideo\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
@@ -252,7 +252,6 @@ clone_repositories()
                 ln -sv /home/$username/cfg/.dircolorsrc /home/$username/
                 ln -sv /home/$username/cfg/.globalgitignore /home/$username/
                 ln -sv /home/$username/cfg/.gvimrc /home/$username/
-                ln -sv /home/$username/cfg/.mpdconf /home/$username/
                 ln -sv /home/$username/cfg/.tmux.conf /home/$username/
                 ln -sv /home/$username/cfg/.toprc /home/$username/
                 ln -sv /home/$username/cfg/.vim /home/$username/
@@ -262,8 +261,6 @@ clone_repositories()
                 ln -sv /home/$username/cfg/.xmobarrc /home/$username/
                 ln -sv /home/$username/cfg/.xmonad /home/$username/
                 ln -sv /home/$username/cfg/.zshrc /home/$username/
-                mkdir /home/$username/.mpd/playlists
-                touch /home/$username/.mpd/{database,log,pid,state,sticker.sql}
                 git config --global user.name $username
                 git config --global user.email $useremail
                 git config --global core.excludesfile ~/.globalgitignore
@@ -277,7 +274,7 @@ clone_repositories()
             pacman --noconfirm -U /home/$username/src/dmenu-xft-height/dmenu-xft-height-4.5-1-x86_64.pkg.tar.xz
             killall dhcpcd
             cp -v /home/$username/cfg/syslinux.cfg /boot/syslinux/
-            cp -v /home/$username/cfg/boot.png /boot/syslinux/
+            cp -v /home/$username/cfg/10-keyboard.conf /etc/X11/xorg.conf.d/
             ln -sv /home/$username/cfg/.dircolorsrc /root/
             ln -sv /home/$username/cfg/.gvimrc /root/
             ln -sv /home/$username/cfg/.vim /root/
