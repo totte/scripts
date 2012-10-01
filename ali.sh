@@ -13,14 +13,14 @@
 # Delete log files if they exist
 delete_logs()
 {
-    if ls uali.log &> /dev/null; then
+    if ls ali.log &> /dev/null; then
     echo "Log file already exists, deleting it..."
-        rm -v uali.log
+        rm -v ali.log
     fi
 
-    if ls uali.err &> /dev/null; then
+    if ls ali.err &> /dev/null; then
         echo "Error log file already exists, deleting it..."
-        rm -v uali.err
+        rm -v ali.err
     fi
 }
 
@@ -66,7 +66,7 @@ create_partitions()
         parted -s -- "$device" set 1 legacy_boot on
         parted -s -- "$device" unit MB mkpart primary 129 8321
         parted -s -- "$device" unit MB mkpart primary 8321 -1
-    } >> uali.log 2>> uali.err
+    } >> ali.log 2>> ali.err
 }
 
 # Format partitions and assign labels
@@ -77,7 +77,7 @@ format_partitions()
         mkfs.ext4 "$device"1 -L boot
         mkfs.ext4 "$device"2 -L root
         mkfs.ext4 "$device"3 -L home
-    } >> uali.log 2>> uali.err
+    } >> ali.log 2>> ali.err
 }
 
 # Mount partitions and add directories
@@ -92,7 +92,7 @@ mount_partitions()
         mount --bind /dev /mnt/dev
         mount --bind /proc /mnt/proc
         mount --bind /sys /mnt/sys
-    } >> uali.log 2>> uali.err
+    } >> ali.log 2>> ali.err
 }
 
 # Generate mirror list
@@ -102,7 +102,7 @@ generate_mirror_list()
     {
         url="http://www.archlinux.org/mirrorlist/?country=SE&protocol=ftp&protocol=http&ip_version=4&use_mirror_status=on"
         wget -qO- "$url" | sed 's/^#Server/Server/g' > /etc/pacman.d/mirrorlist
-    } >> uali.log 2>> uali.err
+    } >> ali.log 2>> ali.err
 }
 
 # Install packages
@@ -115,13 +115,13 @@ install_packages()
         # Keep trying until success
         result=1
         until [ $result -eq 0 ]; do
-            pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git gstreamer0.10 gstreamer0.10-plugins hsetroot kdemultimedia-juk lsb-release mesa openssh opera pyqt python python-pip qt qtfm rxvt-unicode slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-droid ttf-inconsolata vim wget xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
+            pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git gstreamer0.10 gstreamer0.10-plugins hsetroot kdemultimedia-juk lsb-release mesa openssh opera pyqt python python-pip qt qtfm rxvt-unicode slim slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-droid ttf-inconsolata vim wget xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
             if [ $virtualmachine -eq 1 ]; then
                 pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy xf86-video-vesa xf86-video-fbdev virtualbox-archlinux-additions
             fi
             result=$?
         done
-    } >> uali.log 2>> uali.err
+    } >> ali.log 2>> ali.err
 }
 
 # Copy Pacman keyring and mirrorlist
@@ -131,7 +131,7 @@ copy_pacman_km()
     {
         cp -av /etc/pacman.d/gnupg /mnt/etc/pacman.d/
         cp -av /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/
-    } >> uali.log 2>> uali.err
+    } >> ali.log 2>> ali.err
 }
 
 # Generate an fstab
@@ -140,7 +140,7 @@ generate_fstab()
     echo "Generating an fstab..."
     {
         genfstab -pL /mnt >> /mnt/etc/fstab
-    } >> uali.log 2>> uali.err
+    } >> ali.log 2>> ali.err
 }
 
 # Set hostname
@@ -150,7 +150,7 @@ set_hostname()
     echo "Setting hostname..."
     {
         echo $hostname > /mnt/etc/hostname
-    } >> uali.log 2>> uali.err
+    } >> ali.log 2>> ali.err
 }
 
 # Set timezone
@@ -161,7 +161,7 @@ set_timezone()
         ln -sv /mnt/usr/share/zoneinfo/Europe/Stockholm /mnt/etc/localtime
         echo "Europe/Stockholm" > /mnt/etc/timezone
         chroot /mnt /sbin/hwclock --systohc --utc
-    } >> uali.log 2>> uali.err
+    } >> ali.log 2>> ali.err
 }
 
 # Set keyboard layout for console (not X.org)
@@ -171,7 +171,7 @@ set_keymap()
     {
         echo "KEYMAP=\"$keyboardlayout\"" > /mnt/etc/vconsole.conf
         echo "FONT=\"Lat2-Terminus16\"" >> /mnt/etc/vconsole.conf
-    } >> uali.log 2>> uali.err
+    } >> ali.log 2>> ali.err
 }
 
 # Set locale
@@ -183,7 +183,7 @@ set_locale()
         echo "LC_COLLATE=C" >> /mnt/etc/locale.conf
         echo "en_US.UTF-8 UTF-8" >> /mnt/etc/locale.gen
         chroot /mnt /usr/sbin/locale-gen
-    } >> uali.log 2>> uali.err
+    } >> ali.log 2>> ali.err
 }
 
 # Enable daemons
@@ -192,7 +192,7 @@ enable_daemons()
     echo "Enabling daemons..."
     {
         chroot /mnt systemctl enable dhcpcd@eth0.service
-    } >> uali.log 2>> uali.err
+    } >> ali.log 2>> ali.err
 }
 
 # Create initial ramdisk
@@ -207,7 +207,7 @@ create_initial_ramdisk()
             mv /mnt/etc/mkinitcpio.conf.new /mnt/etc/mkinitcpio.conf
         fi
         chroot /mnt mkinitcpio -p linux
-    } >> uali.log 2>> uali.err
+    } >> ali.log 2>> ali.err
 }
 
 # Configure bootloader
@@ -216,7 +216,7 @@ configure_bootloader()
     echo "Configuring bootloader..."
     {
         chroot /mnt /usr/sbin/syslinux-install_update -im
-    } >> uali.log 2>> uali.err
+    } >> ali.log 2>> ali.err
 }
 
 # Set root password
@@ -225,7 +225,7 @@ set_root_password()
     echo "Setting root password..."
     {
         chroot /mnt passwd
-    } >> uali.log
+    } >> ali.log
 }
 
 # Create user
@@ -235,7 +235,7 @@ create_user()
     {
         chroot /mnt useradd -m -g users -G audio,games,log,lp,optical,power,scanner,storage,video,wheel -s /bin/zsh $username
         chroot /mnt passwd $username
-    } >> uali.log
+    } >> ali.log
 }
 
 # Clone the cfg git repository (temporary solution, read-only access, just to get X running)
@@ -246,6 +246,7 @@ clone_repositories()
         chroot /mnt /bin/zsh <<- END
             dhcpcd
             su $username
+                mkdir /home/$username/{bin,cfg,doc,downloads,music,photographs,projects,src}
                 git clone https://totte@bitbucket.org/totte/cfg.git /home/$username/cfg
                 rm -frv /home/$username/.bash*
                 rm -frv /home/$username/.xinitrc
@@ -264,17 +265,38 @@ clone_repositories()
                 git config --global user.name $username
                 git config --global user.email $useremail
                 git config --global core.excludesfile ~/.globalgitignore
-                mkdir /home/$username/src
                 wget -P /home/$username/src/ https://aur.archlinux.org/packages/dm/dmenu-xft-height/dmenu-xft-height.tar.gz
+                wget -P /home/$username/src/ https://aur.archlinux.org/packages/be/bespin-svn/bespin-svn.tar.gz
+                wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-strict/haskell-strict.tar.gz
+                wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-xdg-basedir/haskell-xdg-basedir.tar.gz
+                wget -P /home/$username/src/ https://aur.archlinux.org/packages/ye/yeganesh/yeganesh.tar.gz
                 tar -zxvf /home/$username/src/dmenu-xft-height.tar.gz
+                tar -zxvf /home/$username/src/bespin-svn.tar.gz
+                tar -zxvf /home/$username/src/haskell-strict.tar.gz
+                tar -zxvf /home/$username/src/haskell-xdg-basedir.tar.gz
+                tar -zxvf /home/$username/src/yeganesh.tar.gz
                 cd /home/$username/src/dmenu-xft-height
+                makepkg -s
+                cd /home/$username/src/bespin-svn
+                makepkg -s
+                cd /home/$username/src/haskell-strict
+                makepkg -s
+                cd /home/$username/src/haskell-xdg-basedir
+                makepkg -s
+                cd /home/$username/src/yeganesh
                 makepkg -s
                 xmonad --recompile
                 exit
-            pacman --noconfirm -U /home/$username/src/dmenu-xft-height/dmenu-xft-height-4.5-1-x86_64.pkg.tar.xz
+            pacman --noconfirm -U /home/$username/src/dmenu-xft-height/dmenu-xft-height*
+            pacman --noconfirm -U /home/$username/src/bespin-svn/bespin-svn*
+            pacman --noconfirm -U /home/$username/src/haskell-strict/haskell-strict*
+            pacman --noconfirm -U /home/$username/src/haskell-xdg-basedir/haskell-xdg-basedir*
+            pacman --noconfirm -U /home/$username/src/yeganesh/yeganesh*
             killall dhcpcd
             cp -v /home/$username/cfg/syslinux.cfg /boot/syslinux/
             cp -v /home/$username/cfg/10-keyboard.conf /etc/X11/xorg.conf.d/
+            cp -rv /home/$username/cfg/slim /usr/share/slim/themes/
+            cp -v /home/$username/cfg/slim.conf /etc/
             ln -sv /home/$username/cfg/.dircolorsrc /root/
             ln -sv /home/$username/cfg/.gvimrc /root/
             ln -sv /home/$username/cfg/.vim /root/
@@ -290,7 +312,7 @@ clone_repositories()
             echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
             exit
 END
-        } >> uali.log 2>> uali.err
+        } >> ali.log 2>> ali.err
 }
 
 # Unmount partitions
@@ -299,7 +321,7 @@ unmount_partitions()
     echo "Unmounting partitions..."
     {
         umount /mnt/{boot,dev,home,proc,sys,}
-    } >> uali.log 2>> uali.err
+    } >> ali.log 2>> ali.err
 }
 
 # Run!
