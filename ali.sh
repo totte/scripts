@@ -185,10 +185,6 @@ create_initial_ramdisk()
     {
         sed -e 's/\(^MODULES.*\)"$/\1nouveau fuse\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
         mv /mnt/etc/mkinitcpio.conf.new /mnt/etc/mkinitcpio.conf
-        if [ $virtualmachine -eq 1 ]; then
-            sed -e 's/\(^MODULES.*\)"$/\1 vboxguest vboxsf vboxvideo\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
-            mv /mnt/etc/mkinitcpio.conf.new /mnt/etc/mkinitcpio.conf
-        fi
         chroot /mnt mkinitcpio -p linux
     } >> ali.log 2>> ali.err
 }
@@ -254,24 +250,6 @@ clone_repositories()
                 wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-xdg-basedir/haskell-xdg-basedir.tar.gz
                 wget -P /home/$username/src/ https://aur.archlinux.org/packages/wi/wicd-kde/wicd-kde.tar.gz
                 wget -P /home/$username/src/ https://aur.archlinux.org/packages/ye/yeganesh/yeganesh.tar.gz
-                tar -zxvf /home/$username/src/bespin-svn.tar.gz
-                tar -zxvf /home/$username/src/dmenu-xft-height.tar.gz
-                tar -zxvf /home/$username/src/haskell-strict.tar.gz
-                tar -zxvf /home/$username/src/haskell-xdg-basedir.tar.gz
-                tar -zxvf /home/$username/src/wicd-kde.tar.gz
-                tar -zxvf /home/$username/src/yeganesh.tar.gz
-                cd /home/$username/src/bespin-svn
-                makepkg -s
-                cd /home/$username/src/dmenu-xft-height
-                makepkg -s
-                cd /home/$username/src/haskell-strict
-                makepkg -s
-                cd /home/$username/src/haskell-xdg-basedir
-                makepkg -s
-                cd /home/$username/src/wicd-kde
-                makepkg -s
-                cd /home/$username/src/yeganesh
-                makepkg -s
                 xmonad --recompile
                 exit
             killall dhcpcd
