@@ -115,7 +115,7 @@ install_packages()
         # Keep trying until success
         result=1
         until [ $result -eq 0 ]; do
-            pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git gstreamer0.10 gstreamer0.10-plugins hsetroot kdemultimedia-juk lsb-release mesa openssh opera pyqt python python-pip qt qtfm rxvt-unicode slim slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-droid ttf-inconsolata vim wget xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
+            pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git gstreamer0.10 gstreamer0.10-plugins hsetroot kdemultimedia-juk lsb-release mesa openssh opera pyqt python python-pip qt qtfm rxvt-unicode slim slock sqliteman sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-droid ttf-inconsolata unclutter vim wget xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
             if [ $virtualmachine -eq 1 ]; then
                 pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy xf86-video-vesa xf86-video-fbdev virtualbox-archlinux-additions
             fi
@@ -265,33 +265,38 @@ clone_repositories()
                 git config --global user.name $username
                 git config --global user.email $useremail
                 git config --global core.excludesfile ~/.globalgitignore
-                wget -P /home/$username/src/ https://aur.archlinux.org/packages/dm/dmenu-xft-height/dmenu-xft-height.tar.gz
                 wget -P /home/$username/src/ https://aur.archlinux.org/packages/be/bespin-svn/bespin-svn.tar.gz
+                wget -P /home/$username/src/ https://aur.archlinux.org/packages/dm/dmenu-xft-height/dmenu-xft-height.tar.gz
                 wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-strict/haskell-strict.tar.gz
                 wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-xdg-basedir/haskell-xdg-basedir.tar.gz
+                wget -P /home/$username/src/ https://aur.archlinux.org/packages/wi/wicd-kde/wicd-kde.tar.gz
                 wget -P /home/$username/src/ https://aur.archlinux.org/packages/ye/yeganesh/yeganesh.tar.gz
-                tar -zxvf /home/$username/src/dmenu-xft-height.tar.gz
                 tar -zxvf /home/$username/src/bespin-svn.tar.gz
+                tar -zxvf /home/$username/src/dmenu-xft-height.tar.gz
                 tar -zxvf /home/$username/src/haskell-strict.tar.gz
                 tar -zxvf /home/$username/src/haskell-xdg-basedir.tar.gz
+                tar -zxvf /home/$username/src/wicd-kde.tar.gz
                 tar -zxvf /home/$username/src/yeganesh.tar.gz
-                cd /home/$username/src/dmenu-xft-height
-                makepkg -s
                 cd /home/$username/src/bespin-svn
+                makepkg -s
+                cd /home/$username/src/dmenu-xft-height
                 makepkg -s
                 cd /home/$username/src/haskell-strict
                 makepkg -s
                 cd /home/$username/src/haskell-xdg-basedir
                 makepkg -s
+                cd /home/$username/src/wicd-kde
+                makepkg -s
                 cd /home/$username/src/yeganesh
                 makepkg -s
                 xmonad --recompile
                 exit
-            pacman --noconfirm -U /home/$username/src/dmenu-xft-height/dmenu-xft-height*
             pacman --noconfirm -U /home/$username/src/bespin-svn/bespin-svn*
+            pacman --noconfirm -U /home/$username/src/dmenu-xft-height/dmenu-xft-height*
             pacman --noconfirm -U /home/$username/src/haskell-strict/haskell-strict*
             pacman --noconfirm -U /home/$username/src/haskell-xdg-basedir/haskell-xdg-basedir*
-            pacman --noconfirm -U /home/$username/src/yeganesh/yeganesh*
+            pacman --noconfirm -U /home/$username/src/wicd-kde/wicd-kde*
+            pacman --noconfirm -U /home/$username/src/yeganesh/yeganesh* && pacman --noconfirm -Rns haskell-strict haskell-xdg-basedir
             killall dhcpcd
             cp -v /home/$username/cfg/syslinux.cfg /boot/syslinux/
             cp -v /home/$username/cfg/10-keyboard.conf /etc/X11/xorg.conf.d/
