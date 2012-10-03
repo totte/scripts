@@ -91,7 +91,7 @@ install_packages()
     # Keep trying until success
     result=1
     until [ $result -eq 0 ]; do
-        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git gstreamer0.10 gstreamer0.10-plugins hsetroot kdemultimedia-juk lsb-release mesa openssh opera pyqt python python-pip qt qtfm rxvt-unicode slim slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-droid ttf-inconsolata unclutter vim wget xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
+        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git gstreamer0.10 gstreamer0.10-plugins hsetroot kdemultimedia-juk lsb-release mesa openssh opera pyqt python python-pip qt qtfm rxvt-unicode slim slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-droid ttf-inconsolata unclutter vim wget wicd xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
         result=$?
     done
 } | tee -a ali.log
@@ -157,7 +157,8 @@ set_locale()
 enable_daemons()
 {
     echo `date "+%H:%M:%S"` "Enabling daemons..."
-    chroot /mnt systemctl enable wicd.service slim.service
+    chroot /mnt systemctl enable wicd.service
+    chroot /mnt systemctl enable slim.service
 } | tee -a ali.log
 
 
