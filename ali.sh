@@ -27,30 +27,16 @@ delete_logs()
 # Read input
 input()
 {
-    read -p "Enter hostname: " hostname
-    read -p "Enter username: " username
-    read -p "Enter user e-mail: " useremail
-    read -p "Enter device (e.g. /dev/sda): " device
-    read -p "Enter keyboard layout (e.g. colemak or sv-latin1): " keyboardlayout
-    
-    # Infinite loop, only way out (except for Ctrl+C) is to answer yes or no.
-    while true; do
-        echo "Installing onto a virtual machine? (y/n) "
-        read yn
-        case $yn in
-            [Yy]* ) 
-                virtualmachine=1
-                break
-                ;;
-            [Nn]* )
-                virtualmachine=0
-                break
-                ;;
-            * )
-                echo "Error: Answer (y)es or (n)o."
-                ;;
-        esac
-    done
+    hostname="wraith"
+    username="totte"
+    useremail="totte@tott.es"
+    device="/dev/sda"
+    keyboardlayout="colemak"
+    #read -p "Enter hostname: " hostname
+    #read -p "Enter username: " username
+    #read -p "Enter user e-mail: " useremail
+    #read -p "Enter device (e.g. /dev/sda): " device
+    #read -p "Enter keyboard layout (e.g. colemak or sv-latin1): " keyboardlayout
 }
 
 # Create partitions
@@ -115,10 +101,7 @@ install_packages()
         # Keep trying until success
         result=1
         until [ $result -eq 0 ]; do
-            pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git gstreamer0.10 gstreamer0.10-plugins hsetroot kdemultimedia-juk lsb-release mesa openssh opera pyqt python python-pip qt qtfm rxvt-unicode slim slock sqliteman sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-droid ttf-inconsolata unclutter vim wget xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
-            if [ $virtualmachine -eq 1 ]; then
-                pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy xf86-video-vesa xf86-video-fbdev virtualbox-archlinux-additions
-            fi
+            pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git gstreamer0.10 gstreamer0.10-plugins hsetroot kdemultimedia-juk lsb-release mesa openssh opera pyqt python python-pip qt qtfm rxvt-unicode slim slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-droid ttf-inconsolata unclutter vim wget xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
             result=$?
         done
     } >> ali.log 2>> ali.err
@@ -191,7 +174,7 @@ enable_daemons()
 {
     echo "Enabling daemons..."
     {
-        chroot /mnt systemctl enable dhcpcd@eth0.service
+        chroot /mnt systemctl enable wicd.service slim.service
     } >> ali.log 2>> ali.err
 }
 
@@ -291,12 +274,6 @@ clone_repositories()
                 makepkg -s
                 xmonad --recompile
                 exit
-            pacman --noconfirm -U /home/$username/src/bespin-svn/bespin-svn*
-            pacman --noconfirm -U /home/$username/src/dmenu-xft-height/dmenu-xft-height*
-            pacman --noconfirm -U /home/$username/src/haskell-strict/haskell-strict*
-            pacman --noconfirm -U /home/$username/src/haskell-xdg-basedir/haskell-xdg-basedir*
-            pacman --noconfirm -U /home/$username/src/wicd-kde/wicd-kde*
-            pacman --noconfirm -U /home/$username/src/yeganesh/yeganesh* && pacman --noconfirm -Rns haskell-strict haskell-xdg-basedir
             killall dhcpcd
             cp -v /home/$username/cfg/syslinux.cfg /boot/syslinux/
             cp -v /home/$username/cfg/10-keyboard.conf /etc/X11/xorg.conf.d/
@@ -309,9 +286,7 @@ clone_repositories()
             ln -sv /home/$username/cfg/.zshrc /root/
             tar -xzvf /home/$username/cfg/fonts.tar.gz
             mkdir -pv /usr/share/fonts/TTF
-            mv -v fonts/*.ttf /usr/share/fonts/TTF/
-            mv -v fonts/*.ttc /usr/share/fonts/TTF/
-            mv -v fonts/*.otf /usr/share/fonts/TTF/
+            mv -v fonts/*tf /usr/share/fonts/TTF/
             rm -frv fonts
             chsh -s /bin/zsh
             echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
