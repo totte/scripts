@@ -262,10 +262,8 @@ clone_repositories()
             ln -sv /home/$username/cfg/.vim /root/
             ln -sv /home/$username/cfg/.vimrc /root/
             ln -sv /home/$username/cfg/.zshrc /root/
-            tar -xzvf /home/$username/cfg/fonts.tar.gz
             mkdir -pv /usr/share/fonts/TTF
-            mv -v fonts/*tf /usr/share/fonts/TTF/
-            rm -frv fonts
+            cp -v /home/$username/cfg/chicagobold.ttf /usr/share/fonts/TTF/
             chsh -s /bin/zsh
             echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
             exit
