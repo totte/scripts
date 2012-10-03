@@ -46,7 +46,7 @@ create_partitions()
     parted -s -- "$device" set 1 legacy_boot on
     parted -s -- "$device" unit MB mkpart primary 129 8321
     parted -s -- "$device" unit MB mkpart primary 8321 -1
-} | tee -a ali.log
+}
 
 
 # Format partitions and assign labels
@@ -56,7 +56,7 @@ format_partitions()
     mkfs.ext4 "$device"1 -L boot
     mkfs.ext4 "$device"2 -L root
     mkfs.ext4 "$device"3 -L home
-} | tee -a ali.log
+}
 
 
 # Mount partitions and add directories
@@ -70,7 +70,7 @@ mount_partitions()
     mount --bind /dev /mnt/dev
     mount --bind /proc /mnt/proc
     mount --bind /sys /mnt/sys
-} | tee -a ali.log
+}
 
 
 # Generate mirror list
@@ -79,7 +79,7 @@ generate_mirror_list()
     echo `date "+%H:%M:%S"` "Generating mirror list..."
     url="http://www.archlinux.org/mirrorlist/?country=SE&protocol=ftp&protocol=http&ip_version=4&use_mirror_status=on"
     wget -qO- "$url" | sed 's/^#Server/Server/g' > /etc/pacman.d/mirrorlist
-} | tee -a ali.log
+}
 
 
 # Install packages
@@ -94,7 +94,7 @@ install_packages()
         pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git gstreamer0.10 gstreamer0.10-plugins hsetroot kdemultimedia-juk lsb-release mesa openssh opera pyqt python python-pip qt qtfm rxvt-unicode slim slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-droid ttf-inconsolata unclutter vim wget wicd xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
         result=$?
     done
-} | tee -a ali.log
+}
 
 
 # Copy Pacman keyring and mirrorlist
@@ -103,7 +103,7 @@ copy_pacman_km()
     echo `date "+%H:%M:%S"` "Copying pacman keyring and mirrorlist..."
     cp -av /etc/pacman.d/gnupg /mnt/etc/pacman.d/
     cp -av /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/
-} | tee -a ali.log
+}
 
 
 # Generate an fstab
@@ -111,7 +111,7 @@ generate_fstab()
 {
     echo `date "+%H:%M:%S"` "Generating an fstab..."
     genfstab -pL /mnt >> /mnt/etc/fstab
-} | tee -a ali.log
+}
 
 
 # Set hostname
@@ -120,7 +120,7 @@ set_hostname()
 {
     echo `date "+%H:%M:%S"` "Setting hostname..."
     echo $hostname > /mnt/etc/hostname
-} | tee -a ali.log
+}
 
 
 # Set timezone
@@ -130,7 +130,7 @@ set_timezone()
     ln -sv /mnt/usr/share/zoneinfo/Europe/Stockholm /mnt/etc/localtime
     echo "Europe/Stockholm" > /mnt/etc/timezone
     chroot /mnt /sbin/hwclock --systohc --utc
-} | tee -a ali.log
+}
 
 
 # Set keyboard layout for console (not X.org)
@@ -139,7 +139,7 @@ set_keymap()
     echo `date "+%H:%M:%S"` "Setting keyboard layout..."
     echo "KEYMAP=\"$keyboardlayout\"" > /mnt/etc/vconsole.conf
     echo "FONT=\"Lat2-Terminus16\"" >> /mnt/etc/vconsole.conf
-} | tee -a ali.log
+}
 
 
 # Set locale
@@ -150,7 +150,7 @@ set_locale()
     echo "LC_COLLATE=C" >> /mnt/etc/locale.conf
     echo "en_US.UTF-8 UTF-8" >> /mnt/etc/locale.gen
     chroot /mnt /usr/sbin/locale-gen
-} | tee -a ali.log
+}
 
 
 # Enable daemons
@@ -159,7 +159,7 @@ enable_daemons()
     echo `date "+%H:%M:%S"` "Enabling daemons..."
     chroot /mnt systemctl enable wicd.service
     chroot /mnt systemctl enable slim.service
-} | tee -a ali.log
+}
 
 
 # Create initial ramdisk
@@ -169,7 +169,7 @@ create_initial_ramdisk()
     sed -e 's/\(^MODULES.*\)"$/\1nouveau fuse\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
     mv /mnt/etc/mkinitcpio.conf.new /mnt/etc/mkinitcpio.conf
     chroot /mnt mkinitcpio -p linux
-} | tee -a ali.log
+}
 
 
 # Configure bootloader
@@ -177,7 +177,7 @@ configure_bootloader()
 {
     echo `date "+%H:%M:%S"` "Configuring bootloader..."
     chroot /mnt /usr/sbin/syslinux-install_update -im
-} | tee -a ali.log
+}
 
 
 # Set root password
@@ -185,7 +185,7 @@ set_root_password()
 {
     echo `date "+%H:%M:%S"` "Setting root password..."
     chroot /mnt passwd
-} | tee -a ali.log
+}
 
 
 # Create user
@@ -194,7 +194,7 @@ create_user()
     echo `date "+%H:%M:%S"` "Creating user $username and setting password..."
     chroot /mnt useradd -m -g users -G audio,games,log,lp,optical,power,scanner,storage,video,wheel -s /bin/zsh $username
     chroot /mnt passwd $username
-} | tee -a ali.log
+}
 
 
 # Clone the cfg git repository (temporary solution, read-only access, just to get X running)
@@ -246,7 +246,7 @@ clone_repositories()
         echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
         exit
 END
-} | tee -a ali.log
+}
 
 
 # Unmount partitions
@@ -254,7 +254,7 @@ unmount_partitions()
 {
     echo `date "+%H:%M:%S"` "Unmounting partitions..."
     umount /mnt/{boot,dev,home,proc,sys,}
-} | tee -a ali.log
+}
 
 # Run!
 delete_logs
