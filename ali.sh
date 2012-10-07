@@ -88,7 +88,7 @@ install_packages()
     # Keep trying until success
     result=1
     until [ $result -eq 0 ]; do
-        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils base base-devel git hsetroot kdemultimedia-juk kdepim-akonadiconsole kdepim-akregator kdepim-console kdepim-kaddressbook kdepim-kalarm kdepim-kleopatra kdepim-kmail kdepim-knode kdepim-kontact kdepim-korganizer kdepim-ktimetracker kdepimlibs lsb-release mesa mysql openssh opera phonon pyqt python python-pip qt qtfm rxvt-unicode slim slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-droid ttf-inconsolata unclutter vim wget wicd xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
+        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils base base-devel git hsetroot kde{multimedia-juk,pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kleopatra,kmail,knode,kontact,korganizer,ktimetracker},pimlibs} lsb-release mesa mysql openssh opera phonon pyqt python python-pip qt qtfm rxvt-unicode slim slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-{droid,inconsolata} unclutter vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-video-nouveau
         result=$?
     done
 }
