@@ -48,7 +48,6 @@ create_partitions()
     parted -s -- "$device" unit MB mkpart primary 8321 -1
 }
 
-
 # Format partitions and assign labels
 format_partitions()
 {
@@ -57,7 +56,6 @@ format_partitions()
     mkfs.ext4 "$device"2 -L root
     mkfs.ext4 "$device"3 -L home
 }
-
 
 # Mount partitions and add directories
 mount_partitions()
@@ -72,7 +70,6 @@ mount_partitions()
     mount --bind /sys /mnt/sys
 }
 
-
 # Generate mirror list
 generate_mirror_list()
 {
@@ -81,9 +78,9 @@ generate_mirror_list()
     wget -qO- "$url" | sed 's/^#Server/Server/g' > /etc/pacman.d/mirrorlist
 }
 
-
 # Install packages
 # TODO: Add variable for graphic card drivers
+# TODO: --noconfirm defaults to gstreamer phonon backend, how to make it pick vlc?
 # Dell Precision M4400: NVIDIA, xf86-video-nouveau ('lspci | grep VGA')
 install_packages()
 {
@@ -91,11 +88,10 @@ install_packages()
     # Keep trying until success
     result=1
     until [ $result -eq 0 ]; do
-        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg --noconfirm -Sy abs alsa-utils base base-devel git hsetroot kdemultimedia-juk kdepim-akonadiconsole kdepim-akregator kdepim-console kdepim-kaddressbook kdepim-kalarm kdepim-kleopatra kdepim-kmail kdepim-knode kdepim-kontact kdepim-korganizer kdepim-ktimetracker kdepimlibs lsb-release mesa mysql openssh opera phonon-vlc pyqt python python-pip qt qtfm rxvt-unicode slim slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-droid ttf-inconsolata unclutter vim wget wicd xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
+        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils base base-devel git hsetroot kdemultimedia-juk kdepim-akonadiconsole kdepim-akregator kdepim-console kdepim-kaddressbook kdepim-kalarm kdepim-kleopatra kdepim-kmail kdepim-knode kdepim-kontact kdepim-korganizer kdepim-ktimetracker kdepimlibs lsb-release mesa mysql openssh opera phonon-vlc pyqt python python-pip qt qtfm rxvt-unicode slim slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-droid ttf-inconsolata unclutter vim wget wicd xmobar xmonad xmonad-contrib xorg-server xorg-server-utils xorg-utils xorg-xinit zsh xf86-video-nouveau
         result=$?
     done
 }
-
 
 # Copy Pacman keyring and mirrorlist
 copy_pacman_km()
@@ -105,14 +101,12 @@ copy_pacman_km()
     cp -av /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/
 }
 
-
 # Generate an fstab
 generate_fstab()
 {
     echo `date "+%H:%M:%S"` "Generating an fstab..."
     genfstab -pL /mnt >> /mnt/etc/fstab
 }
-
 
 # Set hostname
 # TODO :%s/localhost/myhostname/g in /etc/hosts
@@ -121,7 +115,6 @@ set_hostname()
     echo `date "+%H:%M:%S"` "Setting hostname..."
     echo $hostname > /mnt/etc/hostname
 }
-
 
 # Set timezone
 set_timezone()
@@ -132,7 +125,6 @@ set_timezone()
     chroot /mnt /sbin/hwclock --systohc --utc
 }
 
-
 # Set keyboard layout for console (not X.org)
 set_keymap()
 {
@@ -140,7 +132,6 @@ set_keymap()
     echo "KEYMAP=\"$keyboardlayout\"" > /mnt/etc/vconsole.conf
     echo "FONT=\"Lat2-Terminus16\"" >> /mnt/etc/vconsole.conf
 }
-
 
 # Set locale
 set_locale()
@@ -155,7 +146,6 @@ set_locale()
     chroot /mnt /usr/sbin/locale-gen
 }
 
-
 # Enable daemons
 enable_daemons()
 {
@@ -164,7 +154,6 @@ enable_daemons()
     chroot /mnt systemctl enable slim.service
     chroot /mnt systemctl enable mysqld.service
 }
-
 
 # Create initial ramdisk
 create_initial_ramdisk()
@@ -175,7 +164,6 @@ create_initial_ramdisk()
     chroot /mnt mkinitcpio -p linux
 }
 
-
 # Configure bootloader
 configure_bootloader()
 {
@@ -183,23 +171,21 @@ configure_bootloader()
     chroot /mnt /usr/sbin/syslinux-install_update -im
 }
 
-
-# Set root password
-set_root_password()
-{
-    echo `date "+%H:%M:%S"` "Setting root password..."
-    chroot /mnt passwd
-}
-
-
 # Create user
 create_user()
 {
-    echo `date "+%H:%M:%S"` "Creating user $username and setting password..."
+    echo `date "+%H:%M:%S"` "Creating user $username..."
     chroot /mnt useradd -m -g users -G audio,games,log,lp,optical,power,scanner,storage,video,wheel -s /bin/zsh $username
-    chroot /mnt passwd $username
 }
 
+# Set passwords
+set_passwords()
+{
+    echo `date "+%H:%M:%S"` "Setting root password..."
+    until chroot /mnt passwd; do echo "Try again!"; done
+    echo `date "+%H:%M:%S"` "Setting user password..."
+    until chroot /mnt passwd $username; do echo "Try again!"; done
+}
 
 # Clone the cfg git repository (temporary solution, read-only access, just to get X running)
 clone_repositories()
@@ -227,11 +213,6 @@ clone_repositories()
             git config --global user.name $username
             git config --global user.email $useremail
             git config --global core.excludesfile ~/.globalgitignore
-            wget -P /home/$username/src/ https://aur.archlinux.org/packages/be/bespin-svn/bespin-svn.tar.gz
-            wget -P /home/$username/src/ https://aur.archlinux.org/packages/dm/dmenu-xft-height/dmenu-xft-height.tar.gz
-            wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-strict/haskell-strict.tar.gz
-            wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-xdg-basedir/haskell-xdg-basedir.tar.gz
-            wget -P /home/$username/src/ https://aur.archlinux.org/packages/ye/yeganesh/yeganesh.tar.gz
             xmonad --recompile
             exit
         killall dhcpcd
@@ -252,6 +233,19 @@ clone_repositories()
 END
 }
 
+# Download AUR packages
+# TODO Compile them (makepkg -s)
+# TODO Install them (pacman -U)
+aur_packages()
+{
+    echo `date "+%H:%M:%S"` "Downloading AUR packages..."
+    wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/be/bespin-svn/bespin-svn.tar.gz
+    wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/dm/dmenu-xft-height/dmenu-xft-height.tar.gz
+    wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-strict/haskell-strict.tar.gz
+    wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-xdg-basedir/haskell-xdg-basedir.tar.gz
+    wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/ye/yeganesh/yeganesh.tar.gz
+    find /mnt/home/$username/src/ -maxdepth 1 -type f -exec tar -zxvf {} \;
+}
 
 # Unmount partitions
 unmount_partitions()
@@ -277,10 +271,16 @@ set_locale
 enable_daemons
 create_initial_ramdisk
 configure_bootloader
-set_root_password
 create_user
+set_passwords
 clone_repositories
+aur_stuff
 unmount_partitions
 
 # Done!
 echo "Installation completed, reboot to continue."
+
+# Once rebooted:
+# Run wicd-curses to login and use the WLAN
+# Set Bespin as theme in qtconfig, Droid Sans 12 as font
+# Set up MySQL for use with Akonadi
