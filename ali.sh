@@ -242,11 +242,11 @@ aur_packages()
     chroot /mnt /bin/zsh <<- END
         dhcpcd
         su $username
-            wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/be/bespin-svn/bespin-svn.tar.gz
-            wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/dm/dmenu-xft-height/dmenu-xft-height.tar.gz
-            wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-strict/haskell-strict.tar.gz
-            wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-xdg-basedir/haskell-xdg-basedir.tar.gz
-            wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/ye/yeganesh/yeganesh.tar.gz
+            wget -P /home/$username/src/ https://aur.archlinux.org/packages/be/bespin-svn/bespin-svn.tar.gz
+            wget -P /home/$username/src/ https://aur.archlinux.org/packages/dm/dmenu-xft-height/dmenu-xft-height.tar.gz
+            wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-strict/haskell-strict.tar.gz
+            wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-xdg-basedir/haskell-xdg-basedir.tar.gz
+            wget -P /home/$username/src/ https://aur.archlinux.org/packages/ye/yeganesh/yeganesh.tar.gz
             find /mnt/home/$username/src/ -maxdepth 1 -type f -exec tar -zxvf {} \;
             exit
         killall dhcpcd
