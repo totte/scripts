@@ -274,7 +274,7 @@ configure_bootloader
 create_user
 set_passwords
 clone_repositories
-aur_stuff
+aur_packages
 unmount_partitions
 
 # Done!
