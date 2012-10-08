@@ -239,12 +239,18 @@ END
 aur_packages()
 {
     echo `date "+%H:%M:%S"` "Downloading AUR packages..."
-    wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/be/bespin-svn/bespin-svn.tar.gz
-    wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/dm/dmenu-xft-height/dmenu-xft-height.tar.gz
-    wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-strict/haskell-strict.tar.gz
-    wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-xdg-basedir/haskell-xdg-basedir.tar.gz
-    wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/ye/yeganesh/yeganesh.tar.gz
-    find /mnt/home/$username/src/ -maxdepth 1 -type f -exec tar -zxvf {} \;
+    chroot /mnt /bin/zsh <<- END
+        dhcpcd
+        su $username
+            wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/be/bespin-svn/bespin-svn.tar.gz
+            wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/dm/dmenu-xft-height/dmenu-xft-height.tar.gz
+            wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-strict/haskell-strict.tar.gz
+            wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-xdg-basedir/haskell-xdg-basedir.tar.gz
+            wget -P /mnt/home/$username/src/ https://aur.archlinux.org/packages/ye/yeganesh/yeganesh.tar.gz
+            find /mnt/home/$username/src/ -maxdepth 1 -type f -exec tar -zxvf {} \;
+            exit
+        killall dhcpcd
+END
 }
 
 # Unmount partitions
@@ -274,7 +280,7 @@ configure_bootloader
 create_user
 set_passwords
 clone_repositories
-#aur_packages
+aur_packages
 unmount_partitions
 
 # Done!
