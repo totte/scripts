@@ -88,7 +88,7 @@ install_packages()
     # Keep trying until success
     result=1
     until [ $result -eq 0 ]; do
-        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils base base-devel git hsetroot kde{multimedia-juk,pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kleopatra,kmail,knode,kontact,korganizer,ktimetracker},pimlibs} lsb-release mesa mysql openssh opera phonon pkgtools pyqt python python-pip qt qtfm rxvt-unicode slim slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-{droid,inconsolata} unclutter vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-video-nouveau
+        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils base base-devel git hsetroot kde{multimedia-juk,pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs} lsb-release mesa mysql openssh opera phonon pkgtools pyqt python python-pip qt qtfm rxvt-unicode slim slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-{droid,inconsolata} unclutter vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-video-nouveau
         result=$?
     done
 }
@@ -274,13 +274,12 @@ configure_bootloader
 create_user
 set_passwords
 clone_repositories
-aur_packages
+#aur_packages
 unmount_partitions
 
 # Done!
 echo "Installation completed, reboot to continue."
 
 # Once rebooted:
-# Run wicd-curses to login and use the WLAN
 # Set Bespin as theme in qtconfig, Droid Sans 12 as font
 # Set up MySQL for use with Akonadi
