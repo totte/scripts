@@ -247,7 +247,7 @@ aur_packages()
             wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-strict/haskell-strict.tar.gz
             wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-xdg-basedir/haskell-xdg-basedir.tar.gz
             wget -P /home/$username/src/ https://aur.archlinux.org/packages/ye/yeganesh/yeganesh.tar.gz
-            find /mnt/home/$username/src/ -maxdepth 1 -type f -exec tar -zxvf {} \;
+            find /home/$username/src/ -maxdepth 1 -type f -exec tar -zxvf {} \;
             exit
         killall dhcpcd
 END
