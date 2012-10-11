@@ -88,7 +88,7 @@ install_packages()
     # Keep trying until success
     result=1
     until [ $result -eq 0 ]; do
-        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils base base-devel git hsetroot kde{multimedia-juk,pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,utils-{kcalc,kgpg,kwallet}} lsb-release mesa mysql openssh opera phonon pkgtools pyqt python python-pip qt qtfm rxvt-unicode slim slock sshfs sudo syslinux systemd systemd-arch-units terminus-font tmux ttf-{droid,inconsolata} unclutter vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-video-nouveau
+        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils apache base base-devel git hsetroot kde{pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,utils-{kcalc,kgpg,kwallet}} lsb-release mercurial mesa mpd mysql openssh opera php php-apache pkgtools pyqt python python-pip qmpdclient qt qtcreator qtfm qt-doc rxvt-unicode slim slock sshfs subversion sudo syslinux systemd systemd-arch-units terminus-font tmux transmission-qt ttf-{droid,inconsolata} unclutter unzip vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-video-nouveau
         result=$?
     done
 }
@@ -244,9 +244,12 @@ aur_packages()
         su $username
             wget -P /home/$username/src/ https://aur.archlinux.org/packages/be/bespin-svn/bespin-svn.tar.gz
             wget -P /home/$username/src/ https://aur.archlinux.org/packages/dm/dmenu-xft-height/dmenu-xft-height.tar.gz
-            wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-strict/haskell-strict.tar.gz
-            wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-xdg-basedir/haskell-xdg-basedir.tar.gz
-            wget -P /home/$username/src/ https://aur.archlinux.org/packages/ye/yeganesh/yeganesh.tar.gz
+            wget -P /home/$username/src/ https://aur.archlinux.org/packages/al/alsaequal/alsaequal.tar.gz
+            wget -P /home/$username/src/ https://aur.archlinux.org/packages/ca/caps/caps.tar.gz
+            wget -P /home/$username/src/ https://aur.archlinux.org/packages/vi/vim-qt-git/vim-qt-git.tar.gz
+            #wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-strict/haskell-strict.tar.gz
+            #wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-xdg-basedir/haskell-xdg-basedir.tar.gz
+            #wget -P /home/$username/src/ https://aur.archlinux.org/packages/ye/yeganesh/yeganesh.tar.gz
             find /home/$username/src/ -maxdepth 1 -type f -exec tar -zxvf {} \;
             exit
         killall dhcpcd
