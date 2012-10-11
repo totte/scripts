@@ -47,13 +47,6 @@ while :
 		declare -i file_number=1
 
 		# Print out menu.
-		echo "\n  ########   #######  ######## ##       #### ##    ## ##    ##"
-		echo "  ##     ## ##     ##    ##    ##        ##  ###   ## ##   ##"
-		echo "  ##     ## ##     ##    ##    ##        ##  ####  ## ##  ##"
-		echo "  ##     ## ##     ##    ##    ##        ##  ## ## ## #####"
-		echo "  ##     ## ##     ##    ##    ##        ##  ##  #### ##  ##"
-		echo "  ##     ## ##     ##    ##    ##        ##  ##   ### ##   ##"
-		echo "  ########   #######     ##    ######## #### ##    ## ##    ##\n"
 		echo "dotlink creates soft links in ~ to files and folders in ~/cfg."
 		echo "Which file or folder would you like to create a link to?"
 		echo "================================================================="
