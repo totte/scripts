@@ -88,7 +88,7 @@ install_packages()
     # Keep trying until success
     result=1
     until [ $result -eq 0 ]; do
-        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils apache base base-devel git hsetroot kde{pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,utils-{kcalc,kgpg,kwallet}} lsb-release mercurial mesa mpd mysql openssh opera php php-apache pkgtools pyqt python python-pip qmpdclient qt qtcreator qtfm qt-doc rxvt-unicode slim slock sshfs subversion sudo syslinux systemd systemd-arch-units terminus-font tmux transmission-qt ttf-{droid,inconsolata} unclutter unzip vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-video-nouveau
+        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils apache base base-devel git hsetroot kde{pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,utils-{kgpg,kwallet}} lsb-release mercurial mesa mpd mysql openssh opera php php-apache pkgtools pyqt python python-pip qmpdclient qt qtcreator qtfm qt-doc rxvt-unicode slim slock sshfs subversion sudo syslinux systemd systemd-arch-units tmux transmission-qt ttf-{droid,inconsolata} unclutter unzip vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-video-nouveau
         result=$?
     done
 }
@@ -130,7 +130,6 @@ set_keymap()
 {
     echo `date "+%H:%M:%S"` "Setting keyboard layout..."
     echo "KEYMAP=\"$keyboardlayout\"" > /mnt/etc/vconsole.conf
-    echo "FONT=\"Lat2-Terminus16\"" >> /mnt/etc/vconsole.conf
 }
 
 # Set locale
@@ -194,18 +193,21 @@ clone_repositories()
     chroot /mnt /bin/zsh <<- END
         dhcpcd
         su $username
-            mkdir /home/$username/{bin,cfg,doc,downloads,music,photographs,projects,src}
+            mkdir /home/$username/{bin,cfg,doc,dwn,img,mnt,msc,prj,src,www}
             git clone https://totte@bitbucket.org/totte/cfg.git /home/$username/cfg
             rm -frv /home/$username/.bash*
             rm -frv /home/$username/.xinitrc
+            ln -sv /home/$username/cfg/.asoundrc /home/$username/
             ln -sv /home/$username/cfg/.dircolorsrc /home/$username/
             ln -sv /home/$username/cfg/.globalgitignore /home/$username/
             ln -sv /home/$username/cfg/.gvimrc /home/$username/
+            ln -sv /home/$username/cfg/.mpd /home/$username/
+            ln -sv /home/$username/cfg/.mpdconf /home/$username/
             ln -sv /home/$username/cfg/.tmux.conf /home/$username/
             ln -sv /home/$username/cfg/.toprc /home/$username/
             ln -sv /home/$username/cfg/.vim /home/$username/
             ln -sv /home/$username/cfg/.vimrc /home/$username/
-            ln -sv /home/$username/cfg/.Xdefaults /home/$username/
+            ln -sv /home/$username/cfg/.Xresources /home/$username/
             ln -sv /home/$username/cfg/.xinitrc /home/$username/
             ln -sv /home/$username/cfg/.xmobarrc /home/$username/
             ln -sv /home/$username/cfg/.xmonad /home/$username/
