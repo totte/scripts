@@ -79,9 +79,6 @@ generate_mirror_list()
 }
 
 # Install packages
-# TODO: Add variable for graphic card drivers
-# TODO: --noconfirm defaults to gstreamer phonon backend, how to make it pick vlc?
-# Dell Precision M4400: NVIDIA, xf86-video-nouveau ('lspci | grep VGA')
 install_packages()
 {
     echo `date "+%H:%M:%S"` "Downloading and installing packages..."
@@ -91,6 +88,13 @@ install_packages()
         pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils apache base base-devel git hsetroot kde{pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,utils-{kgpg,kwallet}} lsb-release mercurial mesa mpd mysql openssh opera php php-apache pkgtools pyqt python python-pip qmpdclient qt qtcreator qtfm qt-doc rxvt-unicode slim slock sshfs subversion sudo syslinux systemd systemd-arch-units tmux transmission-qt ttf-{droid,inconsolata} unclutter unzip vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-video-nouveau
         result=$?
     done
+}
+
+# Uninstall packages
+uninstall_packages()
+{
+    echo `date "+%H:%M:%S"` "Uninstalling packages..."
+    pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Rns initscripts sysvinit sysvinit-tools vi
 }
 
 # Copy Pacman keyring and mirrorlist
@@ -149,16 +153,18 @@ set_locale()
 enable_daemons()
 {
     echo `date "+%H:%M:%S"` "Enabling daemons..."
-    chroot /mnt systemctl enable wicd.service
-    chroot /mnt systemctl enable slim.service
+    chroot /mnt systemctl enable httpd.service
     chroot /mnt systemctl enable mysqld.service
+    chroot /mnt systemctl enable slim.service
+    chroot /mnt systemctl enable wicd.service
 }
 
 # Create initial ramdisk
 create_initial_ramdisk()
 {
     echo `date "+%H:%M:%S"` "Creating initial ramdisk..."
-    sed -e 's/\(^MODULES.*\)"$/\1nouveau fuse\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
+    #sed -e 's/\(^MODULES.*\)"$/\1nouveau fuse\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
+    sed -e 's/\(^MODULES.*\)"$/\1fuse\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
     mv /mnt/etc/mkinitcpio.conf.new /mnt/etc/mkinitcpio.conf
     chroot /mnt mkinitcpio -p linux
 }
@@ -255,6 +261,7 @@ aur_packages()
             find /home/$username/src/ -maxdepth 1 -type f -exec tar -zxvf {} \;
             exit
         killall dhcpcd
+        exit
 END
 }
 
@@ -273,6 +280,7 @@ format_partitions
 mount_partitions
 generate_mirror_list
 install_packages
+uninstall_packages
 copy_pacman_km
 generate_fstab
 set_hostname
@@ -286,7 +294,7 @@ create_user
 set_passwords
 clone_repositories
 aur_packages
-unmount_partitions
+#unmount_partitions
 
 # Done!
 echo "Installation completed, reboot to continue."
