@@ -85,7 +85,7 @@ install_packages()
     # Keep trying until success
     result=1
     until [ $result -eq 0 ]; do
-        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils apache base base-devel git hsetroot kde{pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,utils-{kgpg,kwallet}} lsb-release mercurial mesa mpd mysql openssh opera php php-apache pkgtools pyqt python python-pip qmpdclient qt qtcreator qtfm qt-doc rxvt-unicode slim slock sshfs subversion sudo syslinux systemd systemd-arch-units tmux transmission-qt ttf-{droid,inconsolata} unclutter unzip vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-video-nouveau
+        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils apache base base-devel git gnupg hsetroot kde{base-{konsole,workspace},pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,utils-{kgpg,kwallet}} ksshaskpass kwalletcli lsb-release mercurial mesa mpd mysql openssh opera php php-apache pkgfile pkgtools pyqt python python-pip qmpdclient qt qtcreator qtfm qt-doc slim slock sshfs sudo syslinux systemd systemd-arch-units tmux transmission-qt ttf-{bitstream-vera,dejavu,droid,inconsolata,liberation,ubuntu-font-family} unclutter unzip vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-input-synaptics xf86-video-nouveau
         result=$?
     done
 }
@@ -222,6 +222,7 @@ clone_repositories()
             git config --global user.email $useremail
             git config --global core.excludesfile ~/.globalgitignore
             xmonad --recompile
+            synclient TouchpadOff=1
             exit
         killall dhcpcd
         cp -v /home/$username/cfg/syslinux.cfg /boot/syslinux/
@@ -250,14 +251,10 @@ aur_packages()
     chroot /mnt /bin/zsh <<- END
         dhcpcd
         su $username
-            wget -P /home/$username/src/ https://aur.archlinux.org/packages/be/bespin-svn/bespin-svn.tar.gz
             wget -P /home/$username/src/ https://aur.archlinux.org/packages/dm/dmenu-xft-height/dmenu-xft-height.tar.gz
             wget -P /home/$username/src/ https://aur.archlinux.org/packages/al/alsaequal/alsaequal.tar.gz
             wget -P /home/$username/src/ https://aur.archlinux.org/packages/ca/caps/caps.tar.gz
             wget -P /home/$username/src/ https://aur.archlinux.org/packages/vi/vim-qt-git/vim-qt-git.tar.gz
-            #wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-strict/haskell-strict.tar.gz
-            #wget -P /home/$username/src/ https://aur.archlinux.org/packages/ha/haskell-xdg-basedir/haskell-xdg-basedir.tar.gz
-            #wget -P /home/$username/src/ https://aur.archlinux.org/packages/ye/yeganesh/yeganesh.tar.gz
             find /home/$username/src/ -maxdepth 1 -type f -exec tar -zxvf {} \;
             exit
         killall dhcpcd

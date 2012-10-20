@@ -8,8 +8,8 @@ fi
 (
 	IFS=:
 	if stest -dqr -n "$cache" $PATH; then
-		stest -flx $PATH | sort -u | tee "$cache" | dmenu -fn 'Chicago-14:style=Bold' -nb '#000000' -nf '#868686' -sb '#868686' -sf '#ffffff' -h '32' -p '» '
+		stest -flx $PATH | sort -u | tee "$cache" | dmenu -fn 'Ubuntu-14:style=Bold' -nb '#000000' -nf '#868686' -sb '#0055FF' -sf '#ffffff' -h '32' -p '» '
 	else
-		dmenu -fn 'Chicago-14:style=Bold' -nb '#000000' -nf '#868686' -sb '#868686' -sf '#ffffff' -h '32' -p '» ' < "$cache"
+		dmenu -fn 'Ubuntu-14:style=Bold' -nb '#000000' -nf '#868686' -sb '#0055FF' -sf '#ffffff' -h '32' -p '» ' < "$cache"
 	fi
 ) | ${SHELL:-"/bin/sh"} &
