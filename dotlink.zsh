@@ -1,6 +1,6 @@
 #!/bin/zsh -f
 
-# Creates soft links in ~ to files and folders in ~/cfg.
+# Creates soft links in ~ to files and folders in ~/.config.
 # Copyright 2012 Hans Tovetjärn, hans.tovetjarn@gmail.com
 # All rights reserved. See LICENSE for more information.
 # Runs on Zsh version 4.3.9.
@@ -11,8 +11,8 @@ message=""
 kind=""
 directory=""
 
-# List files in ~/cfg.
-files+=( $HOME/cfg/*~*(README|LICENSE|.git*|*.swp|.DS_Store)(D:t) )
+# List files in ~/.config.
+files+=( $HOME/.config/*~*(README|LICENSE|.git*|*.swp|.DS_Store)(D:t) )
 
 # Determine if a file is a soft link, hard link or if it doesn't exist.
 check(){
@@ -25,7 +25,7 @@ check(){
 	fi
 
 	# Is target a directory?
-	if [ -d "$HOME/cfg/$i" ]; then
+	if [ -d "$HOME/.config/$i" ]; then
 		directory="/"
 	else
 		directory=""
@@ -35,9 +35,9 @@ check(){
 # Rename existing file (if there is one) and then create a soft link to target file.
 link(){
 	if [ -e "$HOME/$file" ]; then
-		message=$(mv -fv $HOME/$file $HOME/$file.backup; ln -sv $HOME/cfg/$file $HOME/$file)
+		message=$(mv -fv $HOME/$file $HOME/$file.backup; ln -sv $HOME/.config/$file $HOME/$file)
 	else
-		message=$(ln -sv $HOME/cfg/$file $HOME/$file)
+		message=$(ln -sv $HOME/.config/$file $HOME/$file)
 	fi
 }
 
@@ -47,7 +47,7 @@ while :
 		declare -i file_number=1
 
 		# Print out menu.
-		echo "dotlink creates soft links in ~ to files and folders in ~/cfg."
+		echo "dotlink creates soft links in ~ to files and folders in ~/.config."
 		echo "Which file or folder would you like to create a link to?"
 		echo "================================================================="
 		

@@ -85,7 +85,7 @@ install_packages()
     # Keep trying until success
     result=1
     until [ $result -eq 0 ]; do
-        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils apache base base-devel git gnupg hsetroot kde{base-{konsole,workspace},pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,utils-{kgpg,kwallet}} kid3 ksshaskpass kwalletcli lsb-release mercurial mesa mpd mysql openssh opera perl-rename php php-apache pkgfile pkgtools pyqt python python-pip qmpdclient qt qtcreator qtfm qt-doc smplayer slim slock sshfs sudo syslinux systemd systemd-arch-units tmux transmission-qt ttf-{bitstream-vera,dejavu,droid,inconsolata,liberation,ubuntu-font-family} unclutter unzip vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-input-synaptics xf86-video-nouveau
+        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils apache base base-devel digikam git gnupg hsetroot kde{base-{konsole,workspace},pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,utils-{kgpg,kwallet}} kid3 ksshaskpass kwalletcli lsb-release mercurial mesa mpd mysql ntp openssh opera perl-rename php php-apache pkgfile pkgtools pyqt python python-pip qmpdclient qt qtcreator qtfm qt-doc smplayer slim slock sshfs sudo syslinux systemd systemd-arch-units tmux transmission-qt ttf-{bitstream-vera,dejavu,droid,inconsolata,liberation,ubuntu-font-family} unclutter unzip vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-input-synaptics xf86-video-nouveau
         result=$?
     done
 }
@@ -155,6 +155,7 @@ enable_daemons()
     echo `date "+%H:%M:%S"` "Enabling daemons..."
     chroot /mnt systemctl enable httpd.service
     chroot /mnt systemctl enable mysqld.service
+    chroot /mnt systemctl enable ntpd.service
     chroot /mnt systemctl enable slim.service
     chroot /mnt systemctl enable wicd.service
 }
@@ -199,43 +200,44 @@ clone_repositories()
     chroot /mnt /bin/zsh <<- END
         dhcpcd
         su $username
-            mkdir /home/$username/{bin,cfg,doc,dwn,img,mnt,msc,prj,src,www}
-            git clone https://totte@bitbucket.org/totte/cfg.git /home/$username/cfg
+            mkdir /home/$username/{.config,abs,bin,code,documents,downloads,images,music,sites}
+            git clone https://totte@bitbucket.org/totte/cfg.git /home/$username/.config
             rm -frv /home/$username/.bash*
             rm -frv /home/$username/.xinitrc
-            ln -sv /home/$username/cfg/.asoundrc /home/$username/
-            ln -sv /home/$username/cfg/.dircolorsrc /home/$username/
-            ln -sv /home/$username/cfg/.globalgitignore /home/$username/
-            ln -sv /home/$username/cfg/.gvimrc /home/$username/
-            ln -sv /home/$username/cfg/.mpd /home/$username/
-            ln -sv /home/$username/cfg/.mpdconf /home/$username/
-            ln -sv /home/$username/cfg/.tmux.conf /home/$username/
-            ln -sv /home/$username/cfg/.toprc /home/$username/
-            ln -sv /home/$username/cfg/.vim /home/$username/
-            ln -sv /home/$username/cfg/.vimrc /home/$username/
-            ln -sv /home/$username/cfg/.Xresources /home/$username/
-            ln -sv /home/$username/cfg/.xinitrc /home/$username/
-            ln -sv /home/$username/cfg/.xmobarrc /home/$username/
-            ln -sv /home/$username/cfg/.xmonad /home/$username/
-            ln -sv /home/$username/cfg/.zshrc /home/$username/
+            ln -sv /home/$username/.config/.asoundrc /home/$username/
+            ln -sv /home/$username/.config/.dircolorsrc /home/$username/
+            ln -sv /home/$username/.config/.globalgitignore /home/$username/
+            ln -sv /home/$username/.config/.gvimrc /home/$username/
+            ln -sv /home/$username/.config/.mpd /home/$username/
+            ln -sv /home/$username/.config/.mpdconf /home/$username/
+            ln -sv /home/$username/.config/.tmux.conf /home/$username/
+            ln -sv /home/$username/.config/.toprc /home/$username/
+            ln -sv /home/$username/.config/.vim /home/$username/
+            ln -sv /home/$username/.config/.vimrc /home/$username/
+            ln -sv /home/$username/.config/.Xresources /home/$username/
+            ln -sv /home/$username/.config/.xinitrc /home/$username/
+            ln -sv /home/$username/.config/.xmobarrc /home/$username/
+            ln -sv /home/$username/.config/.xmonad /home/$username/
+            ln -sv /home/$username/.config/.zshrc /home/$username/
             git config --global user.name $username
             git config --global user.email $useremail
+            git config --global core.editor vim
             git config --global core.excludesfile ~/.globalgitignore
             xmonad --recompile
             synclient TouchpadOff=1
             exit
         killall dhcpcd
-        cp -v /home/$username/cfg/syslinux.cfg /boot/syslinux/
-        cp -v /home/$username/cfg/10-keyboard.conf /etc/X11/xorg.conf.d/
-        cp -rv /home/$username/cfg/slim /usr/share/slim/themes/
-        cp -v /home/$username/cfg/slim.conf /etc/
-        ln -sv /home/$username/cfg/.dircolorsrc /root/
-        ln -sv /home/$username/cfg/.gvimrc /root/
-        ln -sv /home/$username/cfg/.vim /root/
-        ln -sv /home/$username/cfg/.vimrc /root/
-        ln -sv /home/$username/cfg/.zshrc /root/
+        cp -v /home/$username/.config/syslinux.cfg /boot/syslinux/
+        cp -v /home/$username/.config/10-keyboard.conf /etc/X11/xorg.conf.d/
+        cp -rv /home/$username/.config/slim /usr/share/slim/themes/
+        cp -v /home/$username/.config/slim.conf /etc/
+        ln -sv /home/$username/.config/.dircolorsrc /root/
+        ln -sv /home/$username/.config/.gvimrc /root/
+        ln -sv /home/$username/.config/.vim /root/
+        ln -sv /home/$username/.config/.vimrc /root/
+        ln -sv /home/$username/.config/.zshrc /root/
         mkdir -pv /usr/share/fonts/TTF
-        cp -v /home/$username/cfg/chicagobold.ttf /usr/share/fonts/TTF/
+        cp -v /home/$username/.config/chicagobold.ttf /usr/share/fonts/TTF/
         chsh -s /bin/zsh
         echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
         exit
@@ -251,11 +253,11 @@ aur_packages()
     chroot /mnt /bin/zsh <<- END
         dhcpcd
         su $username
-            wget -P /home/$username/src/ https://aur.archlinux.org/packages/dm/dmenu-xft-height/dmenu-xft-height.tar.gz
-            wget -P /home/$username/src/ https://aur.archlinux.org/packages/al/alsaequal/alsaequal.tar.gz
-            wget -P /home/$username/src/ https://aur.archlinux.org/packages/ca/caps/caps.tar.gz
-            wget -P /home/$username/src/ https://aur.archlinux.org/packages/vi/vim-qt-git/vim-qt-git.tar.gz
-            find /home/$username/src/ -maxdepth 1 -type f -exec tar -zxvf {} \;
+            wget -P /home/$username/abs/ https://aur.archlinux.org/packages/dm/dmenu-xft-height/dmenu-xft-height.tar.gz
+            wget -P /home/$username/abs/ https://aur.archlinux.org/packages/al/alsaequal/alsaequal.tar.gz
+            wget -P /home/$username/abs/ https://aur.archlinux.org/packages/ca/caps/caps.tar.gz
+            wget -P /home/$username/abs/ https://aur.archlinux.org/packages/vi/vim-qt-git/vim-qt-git.tar.gz
+            find /home/$username/abs/ -maxdepth 1 -type f -exec tar -zxvf {} \;
             exit
         killall dhcpcd
         exit
@@ -295,7 +297,3 @@ aur_packages
 
 # Done!
 echo "Installation completed, reboot to continue."
-
-# Once rebooted:
-# Set Bespin as theme in qtconfig, Droid Sans 12 as font
-# Set up MySQL for use with Akonadi
