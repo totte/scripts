@@ -86,7 +86,7 @@ install_packages()
     # Keep trying until success
     result=1
     until [ $result -eq 0 ]; do
-        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils apache base base-devel bluedevil bluez digikam git gnupg hsetroot icedtea-web-java7 jre7-openjdk kde{base-{konsole,workspace},pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,utils-{kgpg,kwallet}} kid3 ksshaskpass kwalletcli lsb-release mercurial mesa mpd mysql ntp openssh opera perl-rename php php-apache pkgfile pkgtools pyqt python python-pip qmpdclient qt qtcreator qtfm qt-doc smplayer slim slock sshfs sudo syslinux systemd systemd-arch-units tmux transmission-qt ttf-{bitstream-vera,dejavu,droid,inconsolata,liberation,ubuntu-font-family} unclutter unzip vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-input-synaptics xf86-video-nouveau
+        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils apache archlinux-themes-slim base base-devel bluedevil bluez digikam git gnupg hsetroot icedtea-web-java7 jre7-openjdk kde{base-{konsole,workspace},pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,utils-{kgpg,kwallet}} kid3 ksshaskpass kwalletcli lsb-release mercurial mesa mpd mysql ntp openssh opera perl-rename php php-apache pkgfile pkgtools pyqt python python-pip qmpdclient qt qtcreator qtfm qt-doc smplayer slim slock sshfs sudo syslinux systemd systemd-arch-units tmux transmission-qt ttf-{bitstream-vera,dejavu,droid,inconsolata,liberation,ubuntu-font-family} unclutter unzip vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-input-synaptics xf86-video-nouveau
         result=$?
     done
 }
@@ -230,6 +230,7 @@ clone_repositories()
         killall dhcpcd
         cp -v /home/$username/.config/syslinux.cfg /boot/syslinux/
         cp -v /home/$username/.config/10-keyboard.conf /etc/X11/xorg.conf.d/
+        cp -v /home/$username/.config/10-synaptics.conf /etc/X11/xorg.conf.d/
         cp -rv /home/$username/.config/slim /usr/share/slim/themes/
         cp -v /home/$username/.config/slim.conf /etc/
         ln -sv /home/$username/.config/.dircolorsrc /root/
@@ -237,8 +238,6 @@ clone_repositories()
         ln -sv /home/$username/.config/.vim /root/
         ln -sv /home/$username/.config/.vimrc /root/
         ln -sv /home/$username/.config/.zshrc /root/
-        mkdir -pv /usr/share/fonts/TTF
-        cp -v /home/$username/.config/chicagobold.ttf /usr/share/fonts/TTF/
         chsh -s /bin/zsh
         echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
         exit
@@ -254,7 +253,6 @@ aur_packages()
     chroot /mnt /bin/zsh <<- END
         dhcpcd
         su $username
-            wget -P /home/$username/abs/ https://aur.archlinux.org/packages/dm/dmenu-xft-height/dmenu-xft-height.tar.gz
             wget -P /home/$username/abs/ https://aur.archlinux.org/packages/al/alsaequal/alsaequal.tar.gz
             wget -P /home/$username/abs/ https://aur.archlinux.org/packages/ca/caps/caps.tar.gz
             wget -P /home/$username/abs/ https://aur.archlinux.org/packages/vi/vim-qt-git/vim-qt-git.tar.gz
