@@ -5,6 +5,7 @@
 # 2012-09-07 installation media in a specific way for a specific
 # machine of mine. It takes about an hour to complete on a 1 Mbit/s
 # connection.
+
 # Copyright 2012 Hans "Totte" Tovetjärn, totte@tott.es
 # All rights reserved. See LICENSE for more information.
 
@@ -85,7 +86,7 @@ install_packages()
     # Keep trying until success
     result=1
     until [ $result -eq 0 ]; do
-        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils apache base base-devel digikam git gnupg hsetroot kde{base-{konsole,workspace},pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,utils-{kgpg,kwallet}} kid3 ksshaskpass kwalletcli lsb-release mercurial mesa mpd mysql ntp openssh opera perl-rename php php-apache pkgfile pkgtools pyqt python python-pip qmpdclient qt qtcreator qtfm qt-doc smplayer slim slock sshfs sudo syslinux systemd systemd-arch-units tmux transmission-qt ttf-{bitstream-vera,dejavu,droid,inconsolata,liberation,ubuntu-font-family} unclutter unzip vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-input-synaptics xf86-video-nouveau
+        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs alsa-utils apache base base-devel bluedevil bluez digikam git gnupg hsetroot icedtea-web-java7 jre7-openjdk kde{base-{konsole,workspace},pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,utils-{kgpg,kwallet}} kid3 ksshaskpass kwalletcli lsb-release mercurial mesa mpd mysql ntp openssh opera perl-rename php php-apache pkgfile pkgtools pyqt python python-pip qmpdclient qt qtcreator qtfm qt-doc smplayer slim slock sshfs sudo syslinux systemd systemd-arch-units tmux transmission-qt ttf-{bitstream-vera,dejavu,droid,inconsolata,liberation,ubuntu-font-family} unclutter unzip vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-input-synaptics xf86-video-nouveau
         result=$?
     done
 }
@@ -158,6 +159,7 @@ enable_daemons()
     chroot /mnt systemctl enable ntpd.service
     chroot /mnt systemctl enable slim.service
     chroot /mnt systemctl enable wicd.service
+    chroot /mnt systemctl enable bluetooth.service
 }
 
 # Create initial ramdisk
@@ -214,7 +216,6 @@ clone_repositories()
             ln -sv /home/$username/.config/.toprc /home/$username/
             ln -sv /home/$username/.config/.vim /home/$username/
             ln -sv /home/$username/.config/.vimrc /home/$username/
-            ln -sv /home/$username/.config/.Xresources /home/$username/
             ln -sv /home/$username/.config/.xinitrc /home/$username/
             ln -sv /home/$username/.config/.xmobarrc /home/$username/
             ln -sv /home/$username/.config/.xmonad /home/$username/
