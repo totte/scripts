@@ -247,6 +247,7 @@ END
 }
 
 # Download AUR packages
+# TODO Extract them (tar -zxvf)
 # TODO Compile them (makepkg -s)
 # TODO Install them (pacman -U)
 aur_packages()
@@ -255,10 +256,9 @@ aur_packages()
     chroot /mnt /bin/zsh <<- END
         dhcpcd
         su $username
-            wget -P /home/$username/abs/ https://aur.archlinux.org/packages/al/alsaequal/alsaequal.tar.gz
-            wget -P /home/$username/abs/ https://aur.archlinux.org/packages/ca/caps/caps.tar.gz
-            wget -P /home/$username/abs/ https://aur.archlinux.org/packages/vi/vim-qt-git/vim-qt-git.tar.gz
-            find /home/$username/abs/ -maxdepth 1 -type f -exec tar -zxvf {} \;
+            wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/al/alsaequal/alsaequal.tar.gz
+            wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/ca/caps/caps.tar.gz
+            wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/vi/vim-qt-git/vim-qt-git.tar.gz
             exit
         killall dhcpcd
         exit
