@@ -86,7 +86,7 @@ install_packages()
     # Keep trying until success
     result=1
     until [ $result -eq 0 ]; do
-        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs akonadi alsa-utils apache archlinux-themes-slim base base-devel bluedevil bluez calligra-krita digikam ghc git gnupg hsetroot icedtea-web-java7 jre7-openjdk kde{base-{konq-plugins,konqueror,konsole,workspace},graphics-okular,pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,sdk-kate,utils-{kgpg,kwallet}} kid3 konversation ksshaskpass kwalletcli lsb-release mercurial mesa mpd mysql mysql-clients ntp openssh opera perl-rename php php-apache pkgfile pkgtools pyqt python python-pip qmpdclient qt qtcreator qt-doc smplayer scrot slim slock sshfs sudo syslinux systemd systemd-arch-units transmission-qt ttf-{bitstream-vera,dejavu,droid,inconsolata,liberation,ubuntu-font-family} unclutter unzip vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-input-synaptics xf86-video-nouveau
+        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs akonadi alsa-utils apache archlinux-themes-slim base base-devel ghc git gnupg hsetroot icedtea-web-java7 jre7-openjdk kde{base-{konq-plugins,konqueror,konsole,workspace},graphics-okular,pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,sdk-kate,utils-{kgpg,kwallet}} kid3 konversation ksshaskpass kwalletcli lsb-release mercurial mesa mpd mysql mysql-clients ntp openssh perl-rename php php-apache pkgfile pkgtools pyqt python python-pip qmpdclient qt qtcreator qt-doc smplayer scrot slim slock sshfs sudo syslinux systemd systemd-arch-units transmission-qt ttf-{bitstream-vera,dejavu,droid,inconsolata,liberation,ubuntu-font-family} unclutter unzip vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-input-synaptics xf86-video-nouveau
         result=$?
     done
 }
@@ -159,7 +159,6 @@ enable_daemons()
     chroot /mnt systemctl enable ntpd.service
     chroot /mnt systemctl enable slim.service
     chroot /mnt systemctl enable wicd.service
-    chroot /mnt systemctl enable bluetooth.service
 }
 
 # Create initial ramdisk
@@ -202,17 +201,17 @@ clone_repositories()
     chroot /mnt /bin/zsh <<- END
         dhcpcd
         su $username
-            mkdir /home/$username/{.config,abs,bin,code,documents,downloads,images,music,sites}
-            git clone https://totte@bitbucket.org/totte/cfg.git /home/$username/.config
+            mkdir /home/$username/{.config,abs,audiobooks,bin,calendars,code,contacts,documents,downloads,logs,movies,music,pictures,websites}
+            git clone https://totte@bitbucket.org/totte/configurations.git /home/$username/.config
             rm -frv /home/$username/.bash*
             rm -frv /home/$username/.xinitrc
             ln -sv /home/$username/.config/.asoundrc /home/$username/
             ln -sv /home/$username/.config/.dircolorsrc /home/$username/
+            ln -sv /home/$username/.config/.fonts.conf /home/$username/
             ln -sv /home/$username/.config/.globalgitignore /home/$username/
             ln -sv /home/$username/.config/.gvimrc /home/$username/
-            ln -sv /home/$username/.config/.mpd /home/$username/
+            ln -sv /home/$username/.config/.kde4 /home/$username/
             ln -sv /home/$username/.config/.mpdconf /home/$username/
-            ln -sv /home/$username/.config/.tmux.conf /home/$username/
             ln -sv /home/$username/.config/.toprc /home/$username/
             ln -sv /home/$username/.config/.vim /home/$username/
             ln -sv /home/$username/.config/.vimrc /home/$username/
@@ -225,14 +224,17 @@ clone_repositories()
             git config --global core.editor vim
             git config --global core.excludesfile ~/.globalgitignore
             xmonad --recompile
-            synclient TouchpadOff=1
             exit
         killall dhcpcd
-        cp -v /home/$username/.config/syslinux.cfg /boot/syslinux/
         cp -v /home/$username/.config/10-keyboard.conf /etc/X11/xorg.conf.d/
         cp -v /home/$username/.config/10-synaptics.conf /etc/X11/xorg.conf.d/
-        cp -rv /home/$username/.config/slim /usr/share/slim/themes/
+        cp -v /home/$username/.config/httpd-custom.conf /etc/httpd/conf/extra/
+        cp -v /home/$username/.config/httpd-userdir.conf /etc/httpd/conf/extra/
+        cp -v /home/$username/.config/httpd.conf /etc/httpd/conf/
+        cp -v /home/$username/.config/my.cnf /etc/mysql/
+        cp -v /home/$username/.config/php.ini /etc/php/
         cp -v /home/$username/.config/slim.conf /etc/
+        cp -v /home/$username/.config/syslinux.cfg /boot/syslinux/
         ln -sv /home/$username/.config/.dircolorsrc /root/
         ln -sv /home/$username/.config/.gvimrc /root/
         ln -sv /home/$username/.config/.vim /root/
