@@ -201,7 +201,7 @@ clone_repositories()
     chroot /mnt /bin/zsh <<- END
         dhcpcd
         su $username
-            mkdir /home/$username/{.config,abs,audiobooks,bin,calendars,code,contacts,documents,downloads,logs,movies,music,pictures,websites}
+            mkdir /home/$username/{.config,audiobooks,calendars,code{abs,mote,naturfirman.se,playground,qmpdclient,qvim,scripts,ssia,tott.es},documents,downloads,logs,movies,music,people,pictures,websites}
             git clone https://totte@bitbucket.org/totte/configurations.git /home/$username/.config
             rm -frv /home/$username/.bash*
             rm -frv /home/$username/.xinitrc
