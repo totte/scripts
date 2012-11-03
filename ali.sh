@@ -246,6 +246,24 @@ clone_repositories()
 END
 }
 
+# Configure MySQL
+configure_mysql()
+{
+    echo `date "+%H:%M:%S"` "Configuring MySQL..."
+    chroot /mnt /bin/zsh <<- END
+        /usr/bin/systemctl start mysqld
+        /usr/bin/mysql_secure_installation
+END
+}
+
+# Configure Akonadi
+# TODO Log into MySQL, create database, user
+# TODO Edit ~/.config/akonadi/akonadiserverrc.example (password, filename)
+configure_akonadi()
+{
+    echo `date "+%H:%M:%S"` "Configuring Akonadi..."
+}
+
 # Download AUR packages
 # TODO Extract them (tar -zxvf)
 # TODO Compile them (makepkg -s)
@@ -293,6 +311,8 @@ configure_bootloader
 create_user
 set_passwords
 clone_repositories
+configure_mysql
+configure_akonadi
 aur_packages
 #unmount_partitions
 
