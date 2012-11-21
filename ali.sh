@@ -36,17 +36,18 @@ set_variables()
 }
 
 # Create partitions
-# Example below: 128 MB for /boot, 16 384 MB for / and the rest for /home
+# 128 MB for /boot, 8 192 MB for /, 4 096 MB for /var, remaining for /home
 # TODO: Is legacy_boot necessary?
 create_partitions()
 {
     echo `date "+%H:%M:%S"` "Creating partitions on $device..."
     parted -s -- "$device" mklabel gpt
     parted -s -- "$device" unit MB mkpart primary 1 129
+    parted -s -- "$device" unit MB mkpart primary 129 8321
+    parted -s -- "$device" unit MB mkpart primary 8321 12417
+    parted -s -- "$device" unit MB mkpart primary 12417 -1
     parted -s -- "$device" set 1 boot on
     parted -s -- "$device" set 1 legacy_boot on
-    parted -s -- "$device" unit MB mkpart primary 129 8321
-    parted -s -- "$device" unit MB mkpart primary 8321 -1
 }
 
 # Format partitions and assign labels
@@ -55,7 +56,8 @@ format_partitions()
     echo `date "+%H:%M:%S"` "Creating file systems on $device..."
     mkfs.ext4 "$device"1 -L boot
     mkfs.ext4 "$device"2 -L root
-    mkfs.ext4 "$device"3 -L home
+    mkfs.ext4 "$device"3 -L var
+    mkfs.ext4 "$device"4 -L home
 }
 
 # Mount partitions and add directories
@@ -65,7 +67,8 @@ mount_partitions()
     mount "$device"2 /mnt
     mkdir -pv /mnt/{boot,dev,home,proc,sys,var/{cache/pacman/pkg,lib/pacman/sync,log}}
     mount "$device"1 /mnt/boot
-    mount "$device"3 /mnt/home
+    mount "$device"3 /mnt/var
+    mount "$device"4 /mnt/home
     mount --bind /dev /mnt/dev
     mount --bind /proc /mnt/proc
     mount --bind /sys /mnt/sys
@@ -86,7 +89,7 @@ install_packages()
     # Keep trying until success
     result=1
     until [ $result -eq 0 ]; do
-        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs akonadi alsa-utils apache archlinux-themes-slim base base-devel ghc git gnupg hsetroot icedtea-web-java7 jre7-openjdk kde{base-{konq-plugins,konqueror,konsole,workspace},graphics-okular,pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,sdk-kate,utils-{kgpg,kwallet}} kid3 konversation ksshaskpass kwalletcli lsb-release mercurial mesa mpd mysql mysql-clients ntp openssh perl-rename php php-apache pkgfile pkgtools pyqt python python-pip qmpdclient qt qtcreator qt-doc smplayer scrot slim slock sshfs sudo syslinux systemd systemd-arch-units transmission-qt ttf-{bitstream-vera,dejavu,droid,inconsolata,liberation,ubuntu-font-family} unclutter unzip vim wget wicd xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-input-synaptics xf86-video-nouveau
+        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs akonadi alsa-utils apache archlinux-themes-slim base base-devel ctags ghc git gnupg hsetroot icedtea-web-java7 jre7-openjdk kde{admin-{kcron,ksystemlog,kuser},base-{kfind,konq-plugins,konqueror,konsole,workspace},graphics-{gwenview,okular},pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,sdk-okteta,utils-{filelight,kdf,kgpg,kwallet}} keychain kid3 konversation ksshaskpass lsb-release mercurial mesa mpd mysql mysql-clients ntp openssh opera perl-rename php php-apache pkgfile pkgtools pyqt python python-pip qmpdclient qt qtcreator qt-doc smplayer scrot slim slock sshfs sudo syslinux systemd transmission-qt ttf-{bitstream-vera,dejavu,droid,inconsolata,liberation,ubuntu-font-family} unclutter unzip vim wget wicd wpa_supplicant xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-input-synaptics xf86-video-nouveau
         result=$?
     done
 }
@@ -95,7 +98,7 @@ install_packages()
 uninstall_packages()
 {
     echo `date "+%H:%M:%S"` "Uninstalling packages..."
-    pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Rns initscripts sysvinit sysvinit-tools vi
+    pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Rns vi
 }
 
 # Copy Pacman keyring and mirrorlist
@@ -125,7 +128,7 @@ set_hostname()
 set_timezone()
 {
     echo `date "+%H:%M:%S"` "Setting timezone..."
-    ln -sv /mnt/usr/share/zoneinfo/Europe/Stockholm /mnt/etc/localtime
+    ln -sv /usr/share/zoneinfo/Europe/Stockholm /mnt/etc/localtime
     echo "Europe/Stockholm" > /mnt/etc/timezone
     chroot /mnt /sbin/hwclock --systohc --utc
 }
@@ -201,7 +204,7 @@ clone_repositories()
     chroot /mnt /bin/zsh <<- END
         dhcpcd
         su $username
-            mkdir /home/$username/{.config,audiobooks,calendars,code{abs,mote,naturfirman.se,playground,qmpdclient,qvim,scripts,ssia,tott.es},documents,downloads,logs,movies,music,people,pictures,websites}
+            mkdir -p /home/$username/{.config,calendars,code/{abs,mote,naturfirman.se,playground,qmpdclient,qvim,scripts,ssia,tott.es},documents,downloads,logs,movies,music/{audiobooks,playlists},people,pictures,websites}
             git clone https://totte@bitbucket.org/totte/configurations.git /home/$username/.config
             rm -frv /home/$username/.bash*
             rm -frv /home/$username/.xinitrc
@@ -219,10 +222,7 @@ clone_repositories()
             ln -sv /home/$username/.config/.xmobarrc /home/$username/
             ln -sv /home/$username/.config/.xmonad /home/$username/
             ln -sv /home/$username/.config/.zshrc /home/$username/
-            git config --global user.name $username
-            git config --global user.email $useremail
-            git config --global core.editor vim
-            git config --global core.excludesfile ~/.globalgitignore
+            cat /home/$username/.config/.gitconfig.example > /home/$username/.gitconfig
             xmonad --recompile
             exit
         killall dhcpcd
@@ -233,6 +233,7 @@ clone_repositories()
         cp -v /home/$username/.config/httpd.conf /etc/httpd/conf/
         cp -v /home/$username/.config/my.cnf /etc/mysql/
         cp -v /home/$username/.config/php.ini /etc/php/
+        cp -v /home/$username/.config/phy0-led.conf /etc/tmpfiles.d/
         cp -v /home/$username/.config/slim.conf /etc/
         cp -v /home/$username/.config/syslinux.cfg /boot/syslinux/
         ln -sv /home/$username/.config/.dircolorsrc /root/
@@ -240,8 +241,11 @@ clone_repositories()
         ln -sv /home/$username/.config/.vim /root/
         ln -sv /home/$username/.config/.vimrc /root/
         ln -sv /home/$username/.config/.zshrc /root/
+        mkdir -p /usr/lib/qt/plugins/styles
+        ln -s /usr/lib/kde4/plugins/styles/oxygen.so /usr/lib/qt/plugins/styles/oxygen.so
         chsh -s /bin/zsh
         echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
+        echo "$username ALL=(ALL) NOPASSWD: /bin/umount" >> /etc/sudoers
         exit
 END
 }
@@ -311,10 +315,63 @@ configure_bootloader
 create_user
 set_passwords
 clone_repositories
-configure_mysql
-configure_akonadi
+#configure_mysql
+#configure_akonadi
 aur_packages
-#unmount_partitions
+unmount_partitions
 
 # Done!
 echo "Installation completed, reboot to continue."
+
+# Once rebooted...
+
+# 1. WLAN
+# » sudo ifconfig wlan0 up
+# » sudo wifi-menu (aliased to 'wm')
+# TODO: Swap blinking "WiFi" LED for solid
+
+# 2. SSH and GPG keys
+# Restore ssh (~/.ssh) and gpg (~/.gnupg) keys from backup
+# » gpg --list-keys
+# Example output "... pub 4096R/1234ABCD 2001-01-01 ..."
+# » git config --global user.signingkey 1234ABCD
+
+# 3. Finalize configurations
+# » cd ~/.config
+# » git submodule update --init --recursive && git submodule foreach git pull origin master
+# » cp ~/.config/.kde4/share/config/konversationrc.example ~/.config/.kde4/share/config/konversationrc
+# » vim ~/.config/.kde4/share/config/konversationrc
+# Fill in real values:
+#  [Server 0]
+#  Password=foo
+#  Port=x
+#  SSLEnabled=true
+#  Server=my.server.com
+
+# 4. Clone project repositories
+# » cd ~/code
+# » git clone git@bitbucket.org:totte/foo.git foo
+# » cp ~/code/scripts/domount to /usr/lib/udev/
+
+# 5. Don't suspend on lid close
+# » vim /etc/systemd/logind.conf
+# Change line with HandleLidSwitch to:
+#  HandleLidSwitch=ignore
+
+# 6. MySQL and Akonadi
+# See:
+#  https://wiki.archlinux.org/index.php/MySQL
+#  https://wiki.archlinux.org/index.php/KDE#Akonadi
+# Basically, get MySQL up and running, connect to it as (MySQL) root,
+# create the akonadi database and user with privileges, flush,
+# ~/.config/akonadi/mysql-local.conf already exists, copy akonadiserverrc.example
+# in the same directory to akonadiserverrc, enter password and finally, as user
+# (NOT sudo) run akonadictl restart/start.
+
+# 7. Apache and ~/websites
+# chmod a+x /home/totte
+
+# 8. Python packages
+# pipi virtualenv
+# pipi flake8
+# pipi pytest

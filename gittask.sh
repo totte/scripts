@@ -16,9 +16,9 @@ usage()
 {
     echo
     echo "Usage:"
-    echo "  gittask.sh new topic name_of_topic"
+    echo "  gittask.sh new task name_of_task"
     echo "    - Creates a new branch off from 'development' named"
-    echo "      'topic/name_of_topic'."
+    echo "      'task/name_of_task'."
     echo "  gittask.sh new release name_of_release"
     echo "    - Creates a new branch off from 'development' named"
     echo "      'release/name_of_release'."
@@ -27,7 +27,7 @@ usage()
     echo "      'hotfix/name_of_hotfix'."
     echo "  gittask.sh done"
     echo "    - Merges current branch into master and/or development"
-    echo "      depending on if it's a topic, release or hotfix."
+    echo "      depending on if it's a task, release or hotfix."
 }
 
 delete_branch()
@@ -72,9 +72,9 @@ if [ "$1" == "new" ] && [ -n "$2" ] && [ -n "$3" ]; then
     # Validate $3, only allow a-z (lower case), 0-9, . and _ (underscore) in branch names.
     [ "${3//[0-9a-z._]/}" = "" ] || { echo "Error: Branch names may only consist of a-z, 0-9 and _ (underscore) characters."; exit 1; }
     case $2 in
-        topic )
+        task )
             git checkout development
-            git checkout -b "topic/$3"
+            git checkout -b "task/$3"
             exit 0
             ;;
         release )
@@ -88,7 +88,7 @@ if [ "$1" == "new" ] && [ -n "$2" ] && [ -n "$3" ]; then
             exit 0
             ;;
         * )
-            echo "Error: You didn't specify topic, release or hotfix."
+            echo "Error: You didn't specify task, release or hotfix."
             exit 1
             ;;
     esac
@@ -97,7 +97,7 @@ if [ "$1" == "new" ] && [ -n "$2" ] && [ -n "$3" ]; then
 elif [ "$1" == "done" ]; then
     current=`git branch | awk '/\*/{print $2}'`
     case ${current} in
-        topic* )
+        task* )
             git checkout development
             git merge ${current}
             git push origin development
@@ -147,7 +147,7 @@ elif [ "$1" == "done" ]; then
             exit 0
             ;;
         * )
-            echo "Error: You're not on a topic, release or hotfix branch."
+            echo "Error: You're not on a task, release or hotfix branch."
             exit 1
             ;;
     esac
