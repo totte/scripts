@@ -89,7 +89,7 @@ install_packages()
     # Keep trying until success
     result=1
     until [ $result -eq 0 ]; do
-        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs akonadi alsa-utils apache archlinux-themes-slim base base-devel ctags ghc git gnupg hsetroot icedtea-web-java7 jre7-openjdk kde{admin-{kcron,ksystemlog,kuser},base-{kfind,konq-plugins,konqueror,konsole,workspace},graphics-{gwenview,okular},pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,sdk-okteta,utils-{filelight,kdf,kgpg,kwallet}} keychain kid3 konversation ksshaskpass lsb-release mercurial mesa mpd mysql mysql-clients ntp openssh opera perl-rename php php-apache pkgfile pkgtools pyqt python python-pip qmpdclient qt qtcreator qt-doc smplayer scrot slim slock sshfs sudo syslinux systemd transmission-qt ttf-{bitstream-vera,dejavu,droid,inconsolata,liberation,ubuntu-font-family} unclutter unzip vim wget wicd wpa_supplicant xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-input-synaptics xf86-video-nouveau
+        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs acpid akonadi alsa-utils apache archlinux-themes-kdm automoc4 base base-devel calligra-meta caps cmake ctags curl ffmpeg flac fuse gcc gdb ghc git gnupg hsetroot icedtea-web-java7 ipython jre7-openjdk kdbg kde{admin-{kcron,ksystemlog,kuser},base-{kfind,konq-plugins,konqueror,konsole,workspace},bindings-python,graphics-{gwenview,okular},libs,pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,sdk-{kate,okteta},utils-{filelight,kdf,kgpg,kwallet}} keychain kid3 konversation ksshaskpass less libkate lsb-release lsof mesa mpd nmap ntp openssh opera perl-rename pgadmin3 phonon phonon-vlc php php-apache php-pgsql pkgfile pkgtools postgresql postgresql-docs postgresql-libs pyqt python python-pip qmpdclient qt qtcreator qt-doc scrot sshfs sudo syslinux systemd transmission-qt ttf-{bitstream-vera,dejavu,droid,inconsolata,liberation,ubuntu-font-family} unclutter unzip vlc wget wicd wpa_supplicant xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-input-synaptics xf86-video-nouveau
         result=$?
     done
 }
@@ -158,7 +158,7 @@ enable_daemons()
 {
     echo `date "+%H:%M:%S"` "Enabling daemons..."
     chroot /mnt systemctl enable httpd.service
-    chroot /mnt systemctl enable mysqld.service
+    chroot /mnt systemctl enable postgresql.service
     chroot /mnt systemctl enable ntpd.service
     chroot /mnt systemctl enable slim.service
     chroot /mnt systemctl enable wicd.service
@@ -250,14 +250,13 @@ clone_repositories()
 END
 }
 
-# Configure MySQL
-configure_mysql()
+# Configure PostgreSQL
+configure_postgresql()
 {
-    echo `date "+%H:%M:%S"` "Configuring MySQL..."
-    chroot /mnt /bin/zsh <<- END
-        /usr/bin/systemctl start mysqld
-        /usr/bin/mysql_secure_installation
-END
+    echo `date "+%H:%M:%S"` "Configuring PostgreSQL..."
+    # uncomment PGROOT and PGLOG in /etc/conf.d/postgresql
+    # mkdir /var/lib/postgresql/data
+    # chown -c postgres:postgres /var/lib/postgres/data
 }
 
 # Configure Akonadi
