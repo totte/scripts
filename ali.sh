@@ -11,28 +11,14 @@
 
 # Tip: iyasefjr cyifmae
 
-# Delete log files if they exist
-delete_logs()
-{
-    if ls ali.log &> /dev/null; then
-    echo "Log file already exists, deleting it..."
-        rm -v ali.log
-    fi
-}
-
 # Set variables
 set_variables()
 {
-    hostname="wraith"
+    hostname="daffodil"
     username="totte"
     useremail="totte@tott.es"
     device="/dev/sda"
     keyboardlayout="colemak"
-    #read -p "Enter hostname: " hostname
-    #read -p "Enter username: " username
-    #read -p "Enter user e-mail: " useremail
-    #read -p "Enter device (e.g. /dev/sda): " device
-    #read -p "Enter keyboard layout (e.g. colemak or sv-latin1): " keyboardlayout
 }
 
 # Create partitions
@@ -40,7 +26,7 @@ set_variables()
 # TODO: Is legacy_boot necessary?
 create_partitions()
 {
-    echo `date "+%H:%M:%S"` "Creating partitions on $device..."
+    echo "Creating partitions on $device..."
     parted -s -- "$device" mklabel gpt
     parted -s -- "$device" unit MB mkpart primary 1 129
     parted -s -- "$device" unit MB mkpart primary 129 8321
@@ -53,21 +39,22 @@ create_partitions()
 # Format partitions and assign labels
 format_partitions()
 {
-    echo `date "+%H:%M:%S"` "Creating file systems on $device..."
+    echo "Creating file systems on $device..."
     mkfs.ext4 "$device"1 -L boot
     mkfs.ext4 "$device"2 -L root
     mkfs.ext4 "$device"3 -L var
     mkfs.ext4 "$device"4 -L home
 }
 
-# Mount partitions and add directories
+# Mount partitions and create directory structure
 mount_partitions()
 {
-    echo `date "+%H:%M:%S"` "Mounting partitions..."
+    echo "Mounting partitions..."
     mount "$device"2 /mnt
-    mkdir -pv /mnt/{boot,dev,home,proc,sys,var/{cache/pacman/pkg,lib/pacman/sync,log}}
+    mkdir -pv /mnt/{boot,dev,home,proc,sys,var}
     mount "$device"1 /mnt/boot
     mount "$device"3 /mnt/var
+    mkdir -pv /mnt/var/{cache/pacman/pkg,lib/pacman/sync,log}
     mount "$device"4 /mnt/home
     mount --bind /dev /mnt/dev
     mount --bind /proc /mnt/proc
@@ -77,42 +64,181 @@ mount_partitions()
 # Generate mirror list
 generate_mirror_list()
 {
-    echo `date "+%H:%M:%S"` "Generating mirror list..."
+    echo "Generating mirror list..."
     url="http://www.archlinux.org/mirrorlist/?country=SE&protocol=ftp&protocol=http&ip_version=4&use_mirror_status=on"
     wget -qO- "$url" | sed 's/^#Server/Server/g' > /etc/pacman.d/mirrorlist
 }
 
-# Install packages
+# Install Pacman packages
 install_packages()
 {
-    echo `date "+%H:%M:%S"` "Downloading and installing packages..."
+    echo "Downloading and installing packages..."
     # Keep trying until success
     result=1
     until [ $result -eq 0 ]; do
-        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy abs acpid akonadi alsa-utils apache archlinux-themes-kdm automoc4 base base-devel calligra-meta caps cmake ctags curl ffmpeg flac fuse gcc gdb ghc git gnupg hsetroot icedtea-web-java7 ipython jre7-openjdk kdbg kde{admin-{kcron,ksystemlog,kuser},base-{kfind,konq-plugins,konqueror,konsole,workspace},bindings-python,graphics-{gwenview,okular},libs,pim-{akonadiconsole,akregator,console,kaddressbook,kalarm,kmail,knode,kontact,korganizer,ktimetracker},pimlibs,sdk-{kate,okteta},utils-{filelight,kdf,kgpg,kwallet}} keychain kid3 konversation ksshaskpass less libkate lsb-release lsof mesa mpd nmap ntp openssh opera perl-rename pgadmin3 phonon phonon-vlc php php-apache php-pgsql pkgfile pkgtools postgresql postgresql-docs postgresql-libs pyqt python python-pip qmpdclient qt qtcreator qt-doc scrot sshfs sudo syslinux systemd transmission-qt ttf-{bitstream-vera,dejavu,droid,inconsolata,liberation,ubuntu-font-family} unclutter unzip vlc wget wicd wpa_supplicant xmobar xmonad xmonad-contrib xorg-{server,server-utils,utils,xinit} zsh xf86-input-synaptics xf86-video-nouveau
+        pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Sy \
+            abs \
+            acpid \
+            akonadi \
+            alsa-lib \
+            alsa-plugins \
+            alsa-utils \
+            apache \
+            appmenu-qt \
+            automoc4 \
+            base \
+            base-devel \
+            bzip2 \
+            calligra-meta \
+            cantata \
+            cmake \
+            coreutils \
+            ctags \
+            curl \
+            dbus \
+            digikam \
+            ffmpeg \
+            flac \
+            flashplugin \
+            fontconfig \
+            gcc \
+            gdb \
+            git \
+            gnupg \
+            grep \
+            gzip \
+            iptables \
+            ipython \
+            kdbg \
+            kde-agent \
+            kdebase-kdepasswd \
+            kdebase-keditbookmarks \
+            kdebase-kfind \
+            kdebase-konsole \
+            kdebase-konq-plugins \
+            kdebase-konqueror \
+            kdebase-plasma \
+            kdebase-runtime \
+            kdebase-workspace \
+            kdebindings-python \
+            kdegraphics-gwenview \
+            kdegraphics-ksnapshot \
+            kdegraphics-okular \
+            kdelibs \
+            kdemultimedia-kmix \
+            kdenetwork-kget \
+            kdepim-akonadiconsole \
+            kdepim-akregator \
+            kdepim-console \
+            kdepim-kaddressbook \
+            kdepim-kalarm \
+            kdepim-kmail \
+            kdepim-kontact \
+            kdepim-korganizer \
+            kdepim-ktimetracker \
+            kdepimlibs \
+            kdeplasma-applets-networkmanagement \
+            kdesdk-kate \
+            kdeutils-kgpg \
+            kdeutils-kwallet \
+            keychain \
+            konversation \
+            ksshaskpass \
+            kwebkitpart \
+            less \
+            libkate \
+            llvm \
+            lsb-release \
+            lsof \
+            make \
+            mesa \
+            mpc \
+            mpd \
+            namcap \
+            ntp \
+            openssh \
+            opera \
+            perl-rename \
+            phonon \
+            phonon-vlc \
+            php \
+            php-apache \
+            php-pgsql \
+            pkgfile \
+            pkgtools \
+            postgresql \
+            postgresql-docs \
+            postgresql-libs \
+            pyqt \
+            python \
+            python-pip \
+            qjson \
+            qt4 \
+            qtwebkit \
+            rsync \
+            sed \
+            sqlite \
+            strigi \
+            sudo \
+            synaptiks \
+            syslinux \
+            systemd \
+            tar \
+            ttf-bitstream-vera \
+            ttf-dejavu \
+            ttf-droid \
+            ttf-inconsolata \
+            ttf-liberation \
+            ttf-ubuntu-font-family \
+            unzip \
+            vlc \
+            wget \
+            which \
+            wpa_supplicant \
+            x264 \
+            xcursor-neutral \
+            xorg-server \
+            xf86-input-synaptics \
+            xf86-video-nouveau \
+            xorg-server-utils \
+            xorg-utils \
+            xorg-xinit \
+            zsh
         result=$?
     done
 }
 
-# Uninstall packages
+# Uninstall Pacman packages
 uninstall_packages()
 {
-    echo `date "+%H:%M:%S"` "Uninstalling packages..."
+    echo "Uninstalling packages..."
     pacman --root /mnt --cachedir /mnt/var/cache/pacman/pkg -Rns vi
 }
 
 # Copy Pacman keyring and mirrorlist
-copy_pacman_km()
+copy_pacman_keyring_mirrorlist()
 {
-    echo `date "+%H:%M:%S"` "Copying pacman keyring and mirrorlist..."
+    echo "Copying pacman keyring and mirrorlist..."
     cp -av /etc/pacman.d/gnupg /mnt/etc/pacman.d/
     cp -av /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/
+}
+
+# Install Python packages
+install_python_packages()
+{
+    echo "Installing Python packages..."
+    chroot /mnt /bin/zsh <<- END
+        dhcpcd
+        pip install virtualenv virtualenvwrapper flake8 pytest
+        killall dhcpcd
+        exit
+END
 }
 
 # Generate an fstab
 generate_fstab()
 {
-    echo `date "+%H:%M:%S"` "Generating an fstab..."
+    echo "Generating an fstab..."
     genfstab -pL /mnt >> /mnt/etc/fstab
 }
 
@@ -120,14 +246,14 @@ generate_fstab()
 # TODO :%s/localhost/myhostname/g in /etc/hosts
 set_hostname()
 {
-    echo `date "+%H:%M:%S"` "Setting hostname..."
+    echo "Setting hostname..."
     echo $hostname > /mnt/etc/hostname
 }
 
 # Set timezone
 set_timezone()
 {
-    echo `date "+%H:%M:%S"` "Setting timezone..."
+    echo "Setting timezone..."
     ln -sv /usr/share/zoneinfo/Europe/Stockholm /mnt/etc/localtime
     echo "Europe/Stockholm" > /mnt/etc/timezone
     chroot /mnt /sbin/hwclock --systohc --utc
@@ -136,38 +262,43 @@ set_timezone()
 # Set keyboard layout for console (not X.org)
 set_keymap()
 {
-    echo `date "+%H:%M:%S"` "Setting keyboard layout..."
+    echo "Setting keyboard layout..."
     echo "KEYMAP=\"$keyboardlayout\"" > /mnt/etc/vconsole.conf
 }
 
 # Set locale
 set_locale()
 {
-    echo `date "+%H:%M:%S"` "Setting locale..."
+    echo "Setting locale..."
     echo "LANG=en_GB.UTF-8" > /mnt/etc/locale.conf
     echo "LC_COLLATE=C" >> /mnt/etc/locale.conf
     echo "LC_TIME=en_GB.UTF-8" >> /mnt/etc/locale.conf
     echo "en_GB.UTF-8 UTF-8" >> /mnt/etc/locale.gen
     echo "en_US.UTF-8 UTF-8" >> /mnt/etc/locale.gen
     echo "sv_SE.UTF-8 UTF-8" >> /mnt/etc/locale.gen
+    # TODO This line fails with a 404
     chroot /mnt /usr/sbin/locale-gen
 }
 
 # Enable daemons
 enable_daemons()
 {
-    echo `date "+%H:%M:%S"` "Enabling daemons..."
+    echo "Enabling daemons..."
+    chroot /mnt systemctl enable acpid.service
     chroot /mnt systemctl enable httpd.service
-    chroot /mnt systemctl enable postgresql.service
+    chroot /mnt systemctl enable kdm.service
+    # TODO This line fails with a 404
+    chroot /mnt systemctl enable mysql.service
+    # TODO This line fails with a 404
+    chroot /mnt systemctl enable NetworkManager.service
     chroot /mnt systemctl enable ntpd.service
-    chroot /mnt systemctl enable slim.service
-    chroot /mnt systemctl enable wicd.service
+    chroot /mnt systemctl enable postgresql.service
 }
 
 # Create initial ramdisk
 create_initial_ramdisk()
 {
-    echo `date "+%H:%M:%S"` "Creating initial ramdisk..."
+    echo "Creating initial ramdisk..."
     #sed -e 's/\(^MODULES.*\)"$/\1nouveau fuse\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
     sed -e 's/\(^MODULES.*\)"$/\1fuse\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
     mv /mnt/etc/mkinitcpio.conf.new /mnt/etc/mkinitcpio.conf
@@ -177,72 +308,70 @@ create_initial_ramdisk()
 # Configure bootloader
 configure_bootloader()
 {
-    echo `date "+%H:%M:%S"` "Configuring bootloader..."
+    echo "Configuring bootloader..."
     chroot /mnt /usr/sbin/syslinux-install_update -im
+}
+
+# Set default X cursor theme
+set_default_x_cursor_theme()
+{
+    echo "Setting default X cursor theme..."
+    mkdir /mnt/usr/share/icons/default
+    # FIXME \n doesn't insert a newline!
+    echo "[Icon Theme]\nInherits=Neutra" > /mnt/usr/share/icons/default/index.theme
 }
 
 # Create user
 create_user()
 {
-    echo `date "+%H:%M:%S"` "Creating user $username..."
+    echo "Creating user $username..."
     chroot /mnt useradd -m -g users -G audio,games,log,lp,optical,power,scanner,storage,video,wheel -s /bin/zsh $username
 }
 
 # Set passwords
 set_passwords()
 {
-    echo `date "+%H:%M:%S"` "Setting root password..."
+    echo "Setting root password..."
     until chroot /mnt passwd; do echo "Try again!"; done
-    echo `date "+%H:%M:%S"` "Setting user password..."
+
+    echo "Setting user password..."
     until chroot /mnt passwd $username; do echo "Try again!"; done
 }
 
 # Clone the cfg git repository (temporary solution, read-only access, just to get X running)
 clone_repositories()
 {
-    echo `date "+%H:%M:%S"` "Cloning repositories and linking/copying files..."
+    echo "Cloning repositories and linking/copying files..."
     chroot /mnt /bin/zsh <<- END
         dhcpcd
         su $username
-            mkdir -p /home/$username/{.config,calendars,code/{abs,mote,naturfirman.se,playground,qmpdclient,qvim,scripts,ssia,tott.es},documents,downloads,logs,movies,music/{audiobooks,playlists},people,pictures,websites}
+            mkdir -p /home/$username/{.config,audiobooks,binaries,calendars,code/{abs,documentation,keybindings,playground,qvim,scripts,tott.es,trunk},documents,downloads,logs,movies,music/.playlists,people,pictures,websites}
             git clone https://totte@bitbucket.org/totte/configurations.git /home/$username/.config
             rm -frv /home/$username/.bash*
             rm -frv /home/$username/.xinitrc
             ln -sv /home/$username/.config/.asoundrc /home/$username/
-            ln -sv /home/$username/.config/.dircolorsrc /home/$username/
-            ln -sv /home/$username/.config/.fonts.conf /home/$username/
-            ln -sv /home/$username/.config/.globalgitignore /home/$username/
+            ln -sv /home/$username/.config/.detoxrc /home/$username/
+            ln -sv /home/$username/.config/.fontconfig /home/$username/
+            ln -sv /home/$username/.config/.gitexcludes /home/$username/
             ln -sv /home/$username/.config/.gvimrc /home/$username/
             ln -sv /home/$username/.config/.kde4 /home/$username/
-            ln -sv /home/$username/.config/.mpdconf /home/$username/
+            ln -sv /home/$username/.config/.kderc /home/$username/
             ln -sv /home/$username/.config/.toprc /home/$username/
             ln -sv /home/$username/.config/.vim /home/$username/
             ln -sv /home/$username/.config/.vimrc /home/$username/
-            ln -sv /home/$username/.config/.xinitrc /home/$username/
-            ln -sv /home/$username/.config/.xmobarrc /home/$username/
-            ln -sv /home/$username/.config/.xmonad /home/$username/
             ln -sv /home/$username/.config/.zshrc /home/$username/
-            cat /home/$username/.config/.gitconfig.example > /home/$username/.gitconfig
-            xmonad --recompile
+            cp -v /home/$username/.config/.gitconfig.example /home/$username/.gitconfig
             exit
         killall dhcpcd
-        cp -v /home/$username/.config/10-keyboard.conf /etc/X11/xorg.conf.d/
-        cp -v /home/$username/.config/10-synaptics.conf /etc/X11/xorg.conf.d/
-        cp -v /home/$username/.config/httpd-custom.conf /etc/httpd/conf/extra/
-        cp -v /home/$username/.config/httpd-userdir.conf /etc/httpd/conf/extra/
-        cp -v /home/$username/.config/httpd.conf /etc/httpd/conf/
-        cp -v /home/$username/.config/my.cnf /etc/mysql/
-        cp -v /home/$username/.config/php.ini /etc/php/
-        cp -v /home/$username/.config/phy0-led.conf /etc/tmpfiles.d/
-        cp -v /home/$username/.config/slim.conf /etc/
-        cp -v /home/$username/.config/syslinux.cfg /boot/syslinux/
-        ln -sv /home/$username/.config/.dircolorsrc /root/
-        ln -sv /home/$username/.config/.gvimrc /root/
-        ln -sv /home/$username/.config/.vim /root/
-        ln -sv /home/$username/.config/.vimrc /root/
+        ln -sv /home/$username/.config/10-keyboard.conf /etc/X11/xorg.conf.d/
+        ln -sv /home/$username/.config/httpd-custom.conf /etc/httpd/conf/extra/
+        ln -sv /home/$username/.config/httpd-userdir.conf /etc/httpd/conf/extra/
+        ln -sv /home/$username/.config/httpd.conf /etc/httpd/conf/
+        ln -sv /home/$username/.config/my.cnf /etc/mysql/
+        ln -sv /home/$username/.config/php.ini /etc/php/
+        ln -sv /home/$username/.config/phy0-led.conf /etc/tmpfiles.d/
+        ln -sv /home/$username/.config/syslinux.cfg /boot/syslinux/
         ln -sv /home/$username/.config/.zshrc /root/
-        mkdir -p /usr/lib/qt/plugins/styles
-        ln -s /usr/lib/kde4/plugins/styles/oxygen.so /usr/lib/qt/plugins/styles/oxygen.so
         chsh -s /bin/zsh
         echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
         echo "$username ALL=(ALL) NOPASSWD: /bin/umount" >> /etc/sudoers
@@ -250,36 +379,24 @@ clone_repositories()
 END
 }
 
-# Configure PostgreSQL
-configure_postgresql()
-{
-    echo `date "+%H:%M:%S"` "Configuring PostgreSQL..."
-    # uncomment PGROOT and PGLOG in /etc/conf.d/postgresql
-    # mkdir /var/lib/postgresql/data
-    # chown -c postgres:postgres /var/lib/postgres/data
-}
-
-# Configure Akonadi
-# TODO Log into MySQL, create database, user
-# TODO Edit ~/.config/akonadi/akonadiserverrc.example (password, filename)
-configure_akonadi()
-{
-    echo `date "+%H:%M:%S"` "Configuring Akonadi..."
-}
-
 # Download AUR packages
 # TODO Extract them (tar -zxvf)
-# TODO Compile them (makepkg -s)
+# TODO Compile them (makepkg -cs)
 # TODO Install them (pacman -U)
 aur_packages()
 {
-    echo `date "+%H:%M:%S"` "Downloading AUR packages..."
+    echo "Downloading AUR packages..."
     chroot /mnt /bin/zsh <<- END
         dhcpcd
         su $username
             wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/al/alsaequal/alsaequal.tar.gz
             wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/ca/caps/caps.tar.gz
-            wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/vi/vim-qt-git/vim-qt-git.tar.gz
+            wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/cr/crossover/crossover.tar.gz
+            wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/de/detox/detox.tar.gz
+            wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/tt/ttf-ms-fonts/ttf-ms-fonts.tar.gz
+            wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/ya/yapan/yapan.tar.gz
+            wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/kd/kdeplasma-applets-activeapp/kdeplasma-applets-activeapp.tar.gz
+	    wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/tt/ttf-droid-monovar/ttf-droid-monovar.tar.gz
             exit
         killall dhcpcd
         exit
@@ -289,12 +406,12 @@ END
 # Unmount partitions
 unmount_partitions()
 {
-    echo `date "+%H:%M:%S"` "Unmounting partitions..."
+    echo "Unmounting partitions..."
+    # TODO This line fails, device busy - check with lsof
     umount /mnt/{boot,dev,home,proc,sys,}
 }
 
 # Run!
-delete_logs
 set_variables
 create_partitions
 format_partitions
@@ -302,7 +419,8 @@ mount_partitions
 generate_mirror_list
 install_packages
 uninstall_packages
-copy_pacman_km
+copy_pacman_keyring_mirrorlist
+install_python_packages
 generate_fstab
 set_hostname
 set_timezone
@@ -311,11 +429,10 @@ set_locale
 enable_daemons
 create_initial_ramdisk
 configure_bootloader
+set_default_x_cursor_theme
 create_user
 set_passwords
 clone_repositories
-#configure_mysql
-#configure_akonadi
 aur_packages
 unmount_partitions
 
@@ -325,9 +442,13 @@ echo "Installation completed, reboot to continue."
 # Once rebooted...
 
 # 1. WLAN
-# » sudo ifconfig wlan0 up
-# » sudo wifi-menu (aliased to 'wm')
-# TODO: Swap blinking "WiFi" LED for solid
+# https://wiki.archlinux.org/index.php/NetworkManager#Disable_current_network_setup
+# Stop the network daemon if it's running (wasn't last time...) and then bring
+# down the interfaces, whatever their names may be:
+# » sudo ip link enp0s25 down
+# » sudo ip link wlp12s0 down
+# » sudo systemctl enable NetworkManager
+# » sudo systemctl start NetworkManager
 
 # 2. SSH and GPG keys
 # Restore ssh (~/.ssh) and gpg (~/.gnupg) keys from backup
@@ -338,39 +459,61 @@ echo "Installation completed, reboot to continue."
 # 3. Finalize configurations
 # » cd ~/.config
 # » git submodule update --init --recursive && git submodule foreach git pull origin master
-# » cp ~/.config/.kde4/share/config/konversationrc.example ~/.config/.kde4/share/config/konversationrc
-# » vim ~/.config/.kde4/share/config/konversationrc
-# Fill in real values:
-#  [Server 0]
-#  Password=foo
-#  Port=x
-#  SSLEnabled=true
-#  Server=my.server.com
+# » cp ~/.config/.../foorc.example ~/.config/.../foorc
+# » vim ~/.config/.../foorc
+# Set UTF-8 as default encoding in Konsole and Kate
+# find -name *.example ~/.config/.kde4/share/config/ and rename them without the suffix
+# Kontact: KMail, View > Message List > Sorting > By Date/Time && Most Recent on Top
+#					Aggregation > Standard Mailing List
+#					Theme > Classic
+#			 Headers > Fancy Headers
+#			 Attachments > Smart
+# KDM theme (Caledonia) and settings
+# Plasma theme (Caledonia) and settings
+#   Upper panel - 32 px high, always visible
+#       Application starter menu
+#       Current application name
+#       Current application menu bar
+#       System tray
+#       Clock
+#   Lower panel - 42 px high, autohide
+#       Task manager
+# Qt colour scheme (Obsidian Coast)
+# KWin window decorations
+#   Export window menu bar
+#   Window title in bold and centered
+#   Minimize, maximize and close buttons on the right
+#   Hide title bar when maximized
 
 # 4. Clone project repositories
 # » cd ~/code
 # » git clone git@bitbucket.org:totte/foo.git foo
-# » cp ~/code/scripts/domount to /usr/lib/udev/
 
-# 5. Don't suspend on lid close
-# » vim /etc/systemd/logind.conf
-# Change line with HandleLidSwitch to:
-#  HandleLidSwitch=ignore
-
-# 6. MySQL and Akonadi
+# 5. PostgreSQL and Akonadi
 # See:
-#  https://wiki.archlinux.org/index.php/MySQL
+#  https://wiki.archlinux.org/index.php/PostgreSQL
 #  https://wiki.archlinux.org/index.php/KDE#Akonadi
-# Basically, get MySQL up and running, connect to it as (MySQL) root,
+# sudo systemd-tmpfiles --create postgresql.conf (no output, what is this supposed to do?)
+# sudo mkdir /var/lib/postgres/data
+# sudo chown -c postgres:postgres /var/lib/postgres/data
+# sudo -i -u postgres
+#  initdb -D '/var/lib/postgres/data'
+#  exit
+# sudo systemctl start postgresql
+# sudo systemctl enable postgresql
+# sudo -i -u postgres
+#  createuser -s -U postgres --interactive
+#  Enter name of role to add: totte
+#  exit
+# createdb akonadi
+# akonadictl stop
+# rm -rf ~/.local/share/akonadi/db_data
+# akonadictl restart
+# Basically, get PostgreSQL up and running (do all the troubleshooting steps!), connect to it as (PostgreSQL) root,
 # create the akonadi database and user with privileges, flush,
 # ~/.config/akonadi/mysql-local.conf already exists, copy akonadiserverrc.example
 # in the same directory to akonadiserverrc, enter password and finally, as user
 # (NOT sudo) run akonadictl restart/start.
 
-# 7. Apache and ~/websites
-# chmod a+x /home/totte
-
-# 8. Python packages
-# pipi virtualenv
-# pipi flake8
-# pipi pytest
+# 6. Apache and ~/websites
+# » chmod a+x /home/totte
