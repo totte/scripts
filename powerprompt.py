@@ -12,8 +12,6 @@ import sys
 import re
 
 class Powerline:
-    #separator = '⮀'
-    #separator_thin='⮁'
     separator = ''
     separator_thin=''
     LSQESCRSQ = '\\[\\e%s\\]'
@@ -75,8 +73,7 @@ def add_cwd_segment(powerline, cwd, maxdepth):
 
     names = cwd.split('/')
     if len(names) > maxdepth:
-	#names = names[:2] + ['⋯ '] + names[2-maxdepth:]
-        names = names[:2] + ['... '] + names[2-maxdepth:]
+        names = names[:2] + ['⋯ '] + names[2-maxdepth:]
 
     for n in names[:-1]:
         powerline.append(Segment(' %s ' % n, 250, 237, Powerline.separator_thin, 244))
@@ -92,10 +89,8 @@ def get_git_status():
         if len(origin_status) > 0:
             origin_position = " %d" % int(origin_status[0][1])
             if origin_status[0][0] == 'behind':
-                #origin_position += '⇣'
 		origin_position += 'b'
             if origin_status[0][0] == 'ahead':
-                #origin_position += '⇡'
                 origin_position += 'a'
 
         if line.find('nothing to commit (working directory clean)') >= 0:
