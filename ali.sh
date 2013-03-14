@@ -9,7 +9,12 @@
 # Copyright 2012 Hans "Totte" Tovetjärn, totte@tott.es
 # All rights reserved. See LICENSE for more information.
 
-# Tip: iyasefjr cyifmae
+# Instructions:
+# iyasefjr cyifmae
+# wifi-menu foo0
+# wget raw.github.com/totte/scripts/master/ali.sh
+# chmod +x ali.sh
+# ./ali.sh
 
 # Set variables
 set_variables()
@@ -287,9 +292,6 @@ enable_daemons()
     chroot /mnt systemctl enable acpid.service
     chroot /mnt systemctl enable httpd.service
     chroot /mnt systemctl enable kdm.service
-    # TODO This line fails with a 404
-    chroot /mnt systemctl enable mysql.service
-    # TODO This line fails with a 404
     chroot /mnt systemctl enable NetworkManager.service
     chroot /mnt systemctl enable ntpd.service
     chroot /mnt systemctl enable postgresql.service
