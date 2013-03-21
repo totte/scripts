@@ -19,9 +19,9 @@
 # Set variables
 set_variables()
 {
-    hostname="daffodil"
-    username="totte"
-    useremail="totte@tott.es"
+    hostname="HOSTNAME"
+    username="USERNAME"
+    useremail="username@foo.com"
     device="/dev/sda"
     keyboardlayout="colemak"
 }
@@ -96,6 +96,7 @@ install_packages()
             bzip2 \
             calligra-meta \
             cantata \
+            chromium \
             cmake \
             coreutils \
             ctags \
@@ -106,6 +107,7 @@ install_packages()
             flac \
             flashplugin \
             fontconfig \
+            fontforge \
             gcc \
             gdb \
             git \
@@ -118,6 +120,7 @@ install_packages()
             kde-agent \
             kdebase-kdepasswd \
             kdebase-keditbookmarks \
+            kdebase-kdialog \
             kdebase-kfind \
             kdebase-konsole \
             kdebase-konq-plugins \
@@ -162,7 +165,6 @@ install_packages()
             namcap \
             ntp \
             openssh \
-            opera \
             perl-rename \
             phonon \
             phonon-vlc \
@@ -281,8 +283,7 @@ set_locale()
     echo "en_GB.UTF-8 UTF-8" >> /mnt/etc/locale.gen
     echo "en_US.UTF-8 UTF-8" >> /mnt/etc/locale.gen
     echo "sv_SE.UTF-8 UTF-8" >> /mnt/etc/locale.gen
-    # TODO This line fails with a 404
-    chroot /mnt /usr/sbin/locale-gen
+    chroot /mnt /usr/bin/locale-gen
 }
 
 # Enable daemons
@@ -301,7 +302,6 @@ enable_daemons()
 create_initial_ramdisk()
 {
     echo "Creating initial ramdisk..."
-    #sed -e 's/\(^MODULES.*\)"$/\1nouveau fuse\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
     sed -e 's/\(^MODULES.*\)"$/\1fuse\"/' </mnt/etc/mkinitcpio.conf >/mnt/etc/mkinitcpio.conf.new
     mv /mnt/etc/mkinitcpio.conf.new /mnt/etc/mkinitcpio.conf
     chroot /mnt mkinitcpio -p linux
@@ -409,8 +409,7 @@ END
 unmount_partitions()
 {
     echo "Unmounting partitions..."
-    # TODO This line fails, device busy - check with lsof
-    umount /mnt/{boot,dev,home,proc,sys,}
+    umount /mnt/{boot,dev,home,proc,sys,var,}
 }
 
 # Run!
