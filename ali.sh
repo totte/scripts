@@ -352,7 +352,7 @@ clone_repositories()
         dhcpcd
         su $username
             mkdir -p /home/$username/{.config,audiobooks,binaries,calendars,code/{abs,documentation,keybindings,playground,qvim,scripts,tott.es,trunk},documents,downloads,logs,movies,music/.playlists,people,pictures,websites}
-            git clone git@github.com:$username/configurations.git /home/$username/.config
+            git clone git://github.com/$username/configurations.git /home/$username/.config
             rm -frv /home/$username/.bash*
             rm -frv /home/$username/.xinitrc
             ln -sv /home/$username/.config/.asoundrc /home/$username/
