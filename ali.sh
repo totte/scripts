@@ -14,6 +14,8 @@
 # wifi-menu foo0
 # wget raw.github.com/totte/scripts/master/ali.sh
 # chmod +x ali.sh
+# lsblk
+# nano ali.sh (enter necessary values)
 # ./ali.sh
 
 # Set variables
