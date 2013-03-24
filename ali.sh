@@ -93,6 +93,7 @@ install_packages()
             automoc4 \
             base \
             base-devel \
+            bluedevil \
             bzip2 \
             calligra-meta \
             cantata \
@@ -113,18 +114,19 @@ install_packages()
             git \
             gnupg \
             grep \
+            gtk-kde4 \
             gzip \
             iptables \
             ipython \
             kdbg \
             kde-agent \
             kdebase-kdepasswd \
-            kdebase-keditbookmarks \
             kdebase-kdialog \
+            kdebase-keditbookmarks \
             kdebase-kfind \
-            kdebase-konsole \
             kdebase-konq-plugins \
             kdebase-konqueror \
+            kdebase-konsole \
             kdebase-plasma \
             kdebase-runtime \
             kdebase-workspace \
@@ -147,6 +149,7 @@ install_packages()
             kdepimlibs \
             kdeplasma-applets-networkmanagement \
             kdesdk-kate \
+            kdeutils-ark \
             kdeutils-kgpg \
             kdeutils-kwallet \
             keychain \
@@ -165,6 +168,8 @@ install_packages()
             namcap \
             ntp \
             openssh \
+            oxygen-gtk2 \
+            p7zip \
             perl-rename \
             phonon \
             phonon-vlc \
@@ -197,6 +202,7 @@ install_packages()
             ttf-inconsolata \
             ttf-liberation \
             ttf-ubuntu-font-family \
+            unrar \
             unzip \
             vlc \
             wget \
@@ -204,12 +210,13 @@ install_packages()
             wpa_supplicant \
             x264 \
             xcursor-neutral \
-            xorg-server \
             xf86-input-synaptics \
             xf86-video-nouveau \
+            xorg-server \
             xorg-server-utils \
             xorg-utils \
             xorg-xinit \
+            zip \
             zsh
         result=$?
     done
@@ -291,6 +298,7 @@ enable_daemons()
 {
     echo "Enabling daemons..."
     chroot /mnt systemctl enable acpid.service
+    chroot /mnt systemctl enable bluetooth.service
     chroot /mnt systemctl enable httpd.service
     chroot /mnt systemctl enable kdm.service
     chroot /mnt systemctl enable NetworkManager.service
@@ -340,7 +348,7 @@ set_passwords()
     until chroot /mnt passwd $username; do echo "Try again!"; done
 }
 
-# Clone the cfg git repository (temporary solution, read-only access, just to get X running)
+# Clone configurations repository
 clone_repositories()
 {
     echo "Cloning repositories and linking/copying files..."
@@ -348,7 +356,7 @@ clone_repositories()
         dhcpcd
         su $username
             mkdir -p /home/$username/{.config,audiobooks,binaries,calendars,code/{abs,documentation,keybindings,playground,qvim,scripts,tott.es,trunk},documents,downloads,logs,movies,music/.playlists,people,pictures,websites}
-            git clone https://totte@bitbucket.org/totte/configurations.git /home/$username/.config
+            git clone git@github.com:$username/configurations.git /home/$username/.config
             rm -frv /home/$username/.bash*
             rm -frv /home/$username/.xinitrc
             ln -sv /home/$username/.config/.asoundrc /home/$username/
@@ -382,6 +390,7 @@ END
 }
 
 # Download AUR packages
+# Not included are Caledonia, QVim and xcursor-neutra which I keep forks of with a build branch
 # TODO Extract them (tar -zxvf)
 # TODO Compile them (makepkg -cs)
 # TODO Install them (pacman -U)
@@ -395,10 +404,11 @@ aur_packages()
             wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/ca/caps/caps.tar.gz
             wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/cr/crossover/crossover.tar.gz
             wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/de/detox/detox.tar.gz
+            wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/kd/kdeplasma-applets-menubar/kdeplasma-applets-menubar.tar.gz
+            wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/py/python-powerline-git/python-powerline-git.tar.gz
+            wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/tt/ttf-meslo/ttf-meslo.tar.gz
             wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/tt/ttf-ms-fonts/ttf-ms-fonts.tar.gz
             wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/ya/yapan/yapan.tar.gz
-            wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/kd/kdeplasma-applets-activeapp/kdeplasma-applets-activeapp.tar.gz
-	    wget -P /home/$username/code/abs/ https://aur.archlinux.org/packages/tt/ttf-droid-monovar/ttf-droid-monovar.tar.gz
             exit
         killall dhcpcd
         exit
@@ -465,10 +475,10 @@ echo "Installation completed, reboot to continue."
 # Set UTF-8 as default encoding in Konsole and Kate
 # find -name *.example ~/.config/.kde4/share/config/ and rename them without the suffix
 # Kontact: KMail, View > Message List > Sorting > By Date/Time && Most Recent on Top
-#					Aggregation > Standard Mailing List
-#					Theme > Classic
-#			 Headers > Fancy Headers
-#			 Attachments > Smart
+#                                       Aggregation > Standard Mailing List
+#                                       Theme > Classic
+#                        Headers > Fancy Headers
+#                        Attachments > Smart
 # KDM theme (Caledonia) and settings
 # Plasma theme (Caledonia) and settings
 #   Upper panel - 32 px high, always visible
@@ -488,7 +498,7 @@ echo "Installation completed, reboot to continue."
 
 # 4. Clone project repositories
 # » cd ~/code
-# » git clone git@bitbucket.org:totte/foo.git foo
+# » git clone git@github.com:$username/foo.git foo
 
 # 5. PostgreSQL and Akonadi
 # See:
@@ -504,7 +514,7 @@ echo "Installation completed, reboot to continue."
 # sudo systemctl enable postgresql
 # sudo -i -u postgres
 #  createuser -s -U postgres --interactive
-#  Enter name of role to add: totte
+#  Enter name of role to add: $username
 #  exit
 # createdb akonadi
 # akonadictl stop
@@ -517,4 +527,4 @@ echo "Installation completed, reboot to continue."
 # (NOT sudo) run akonadictl restart/start.
 
 # 6. Apache and ~/websites
-# » chmod a+x /home/totte
+# » chmod a+x /home/$username
