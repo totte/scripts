@@ -148,7 +148,6 @@ install_packages()
             kdepim-ktimetracker \
             kdepimlibs \
             kdeplasma-applets-networkmanagement \
-            kdesdk-kate \
             kdeutils-ark \
             kdeutils-kgpg \
             kdeutils-kwallet \
@@ -157,7 +156,6 @@ install_packages()
             ksshaskpass \
             kwebkitpart \
             less \
-            libkate \
             llvm \
             lsb-release \
             lsof \
@@ -199,7 +197,6 @@ install_packages()
             ttf-bitstream-vera \
             ttf-dejavu \
             ttf-droid \
-            ttf-inconsolata \
             ttf-liberation \
             ttf-ubuntu-font-family \
             unrar \
@@ -209,7 +206,6 @@ install_packages()
             which \
             wpa_supplicant \
             x264 \
-            xcursor-neutral \
             xf86-input-synaptics \
             xf86-video-nouveau \
             xorg-server \
