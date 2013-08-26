@@ -1,6 +1,6 @@
 #!/bin/zsh -f
 
-# Creates soft links in ~ to files and folders in ~/.config.
+# Creates soft links in ~ to files and folders in ~/code/configurations.
 # Copyright 2012 Hans Tovetjärn, hans.tovetjarn@gmail.com
 # All rights reserved. See LICENSE for more information.
 # Runs on Zsh version 4.3.9.
@@ -11,86 +11,86 @@ message=""
 kind=""
 directory=""
 
-# List files in ~/.config.
-files+=( $HOME/.config/*~*(README|LICENSE|.git*|*.swp|.DS_Store)(D:t) )
+# List files in ~/code/configurations.
+files+=( $HOME/code/configurations/*~*(README|LICENSE|.git*|*.swp|.DS_Store)(D:t) )
 
 # Determine if a file is a soft link, hard link or if it doesn't exist.
 check(){
-	if [ -h "$HOME/$i" ]; then
-		kind="soft link"
-	elif [ -f "$HOME/$i" ]; then
-		kind="hard link"
-	else
-		kind="not"
-	fi
+    if [ -h "$HOME/$i" ]; then
+        kind="soft link"
+    elif [ -f "$HOME/$i" ]; then
+        kind="hard link"
+    else
+        kind="not"
+    fi
 
-	# Is target a directory?
-	if [ -d "$HOME/.config/$i" ]; then
-		directory="/"
-	else
-		directory=""
-	fi
+    # Is target a directory?
+    if [ -d "$HOME/code/configurations/$i" ]; then
+        directory="/"
+    else
+        directory=""
+    fi
 }
 
 # Rename existing file (if there is one) and then create a soft link to target file.
 link(){
-	if [ -e "$HOME/$file" ]; then
-		message=$(mv -fv $HOME/$file $HOME/$file.backup; ln -sv $HOME/.config/$file $HOME/$file)
-	else
-		message=$(ln -sv $HOME/.config/$file $HOME/$file)
-	fi
+    if [ -e "$HOME/$file" ]; then
+        message=$(mv -fv $HOME/$file $HOME/$file.backup; ln -sv $HOME/code/configurations/$file $HOME/$file)
+    else
+        message=$(ln -sv $HOME/code/configurations/$file $HOME/$file)
+    fi
 }
 
 while :
-	do
-		clear
-		declare -i file_number=1
+    do
+        clear
+        declare -i file_number=1
 
-		# Print out menu.
-		echo "dotlink creates soft links in ~ to files and folders in ~/.config."
-		echo "Which file or folder would you like to create a link to?"
-		echo "================================================================="
-		
-		# For every file in the array, determine kind and print them out with a designated number.
-		# Also, obsessive formatting.
-		for i in $files; do
-			check $i
-			echo -n "$file_number. "
-			if [ ${#file_number} -eq 1 ]; then
-				echo -n " "
-			fi
-			echo -n "$i$directory"
-			if [ ${#i} -le 10 ]; then
-				echo -n "		"
-			else
-				echo -n "	"
-			fi
-			echo "($kind found in ~)"
-			file_number=$file_number+1
-		done
-		echo "Q.  Quit"
-		echo "=================================================================="
+        # Print out menu.
+        echo "dotlink creates soft links in ~ to files and folders in ~/code/configurations."
+        echo "Which file or folder would you like to create a link to?"
+        echo "================================================================="
+        
+        # For every file in the array, determine kind and print them out with a designated number.
+        # Also, obsessive formatting.
+        for i in $files; do
+            check $i
+            echo -n "$file_number. "
+            if [ ${#file_number} -eq 1 ]; then
+                echo -n " "
+            fi
+            echo -n "$i$directory"
+            if [ ${#i} -le 10 ]; then
+                echo -n "               "
+            else
+                echo -n "       "
+            fi
+            echo "($kind found in ~)"
+            file_number=$file_number+1
+        done
+        echo "Q.  Quit"
+        echo "=================================================================="
 
-		# Print message if it is set to something.
-		if [[ -n $message ]]; then
-			echo "$message\n=================================================================="
-		fi
-		
-		# Prompt.
-		echo -ne " » "
-		read choice
-		
-		# Quit?
-		if [[ $choice = "q" || $choice = "Q" ]]; then
-			break
+        # Print message if it is set to something.
+        if [[ -n $message ]]; then
+            echo "$message\n=================================================================="
+        fi
+        
+        # Prompt.
+        echo -ne " » "
+        read choice
+        
+        # Quit?
+        if [[ $choice = "q" || $choice = "Q" ]]; then
+            break
 
-		# Number between 1 and the number of files?
-		elif [ $choice -ge 1 ] && [ $choice -le ${#files[*]} ]; then
-			file=${files[choice]}
-			link $file
+        # Number between 1 and the number of files?
+        elif [ $choice -ge 1 ] && [ $choice -le ${#files[*]} ]; then
+            file=${files[choice]}
+            link $file
 
-		# Invalid choice.
-		else
-			message="Invalid choice, select a number between 1 and ${#files[*]} or Q to quit."
-		fi
-	done
+        # Invalid choice.
+        else
+            message="Invalid choice, select a number between 1 and ${#files[*]} or Q to quit."
+        fi
+    done
