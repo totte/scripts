@@ -106,6 +106,7 @@ install_packages()
             curl \
             dbus \
             digikam \
+            dosfstools \
             ffmpeg \
             flac \
             flashplugin \
@@ -120,8 +121,11 @@ install_packages()
             gzip \
             iptables \
             ipython \
+            kaudiocreator \
             kdbg \
             kde-agent \
+            kdeadmin-kuser \
+            kdebase-dolphin \
             kdebase-kdepasswd \
             kdebase-kdialog \
             kdebase-keditbookmarks \
@@ -129,14 +133,15 @@ install_packages()
             kdebase-konq-plugins \
             kdebase-konqueror \
             kdebase-konsole \
-            kdebase-plasma \
             kdebase-runtime \
             kdebase-workspace \
             kdebindings-python \
-            kdegraphics-gwenview \
+            kdegraphics-kcolorchooser \
+            kdegraphics-kruler \
             kdegraphics-ksnapshot \
             kdegraphics-okular \
             kdelibs \
+            kdemultimedia-audiocd-kio \
             kdemultimedia-kmix \
             kdenetwork-kget \
             kdepim-akonadiconsole \
@@ -162,6 +167,8 @@ install_packages()
             lsb-release \
             lsof \
             make \
+            mariadb \
+            mariadb-clients \
             mesa \
             mpc \
             mpd \
@@ -169,23 +176,22 @@ install_packages()
             ntp \
             openssh \
             oxygen-gtk2 \
+            oxygen-icons \
             p7zip \
+            parted \
             perl-rename \
             phonon \
             phonon-vlc \
             php \
             php-apache \
-            php-pgsql \
             pkgfile \
             pkgtools \
-            postgresql \
-            postgresql-docs \
-            postgresql-libs \
             pyqt \
             python \
             python-pip \
             qjson \
             qt4 \
+            qtcreator \
             qtwebkit \
             rsync \
             sed \
@@ -196,6 +202,7 @@ install_packages()
             syslinux \
             systemd \
             tar \
+            transmission-qt \
             ttf-bitstream-vera \
             ttf-dejavu \
             ttf-droid \
@@ -203,6 +210,7 @@ install_packages()
             ttf-ubuntu-font-family \
             unrar \
             unzip \
+            valgrind \
             vlc \
             wget \
             which \
@@ -347,6 +355,12 @@ set_passwords()
 }
 
 # Clone configurations repository
+# TODO ln fails, file already exists:
+#  httpd-userdir.conf
+#  httpd.conf
+#  my.cnf
+#  php.ini
+#  syslinux.cfg
 clone_repositories()
 {
     echo "Cloning repositories and linking/copying files..."
@@ -389,6 +403,7 @@ END
 
 # Download AUR packages
 # Not included are Caledonia, QVim and xcursor-neutra which I keep forks of with a build branch
+# TODO Add Colibri, Fribidi
 # TODO Extract them (tar -zxvf)
 # TODO Compile them (makepkg -cs)
 # TODO Install them (pacman -U)
